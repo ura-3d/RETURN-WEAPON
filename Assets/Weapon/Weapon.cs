@@ -67,4 +67,13 @@ public class Weapon : MonoBehaviour
             isReturning = true;
         }
     }
+
+    //“G‚Æ‚Ì“–‚½‚è”»’è
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if(other.CompareTag("Enemy"))
+        {
+            Debug.Log("–½’†");
+        }
+    }
 }
