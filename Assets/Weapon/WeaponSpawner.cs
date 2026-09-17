@@ -8,8 +8,15 @@ public class WeaponSpawner : MonoBehaviour
     [Header("生成位置")]
     [SerializeField] private Transform weaponSpawnPoint;
 
+    // 現在存在している武器
+    private GameObject currentWeapon;
+
     private void Update()
     {
+        // 武器が存在している場合は新しく投げない
+        if (currentWeapon != null)
+            return;
+
         // 左クリックで武器を投げる
         if (Input.GetMouseButtonDown(0))
         {
@@ -31,13 +38,13 @@ public class WeaponSpawner : MonoBehaviour
             return;
         }
 
-        GameObject weaponObject = Instantiate(
+        currentWeapon = Instantiate(
             weaponPrefab,
             weaponSpawnPoint.position,
             weaponSpawnPoint.rotation
         );
 
-        Weapon weapon = weaponObject.GetComponent<Weapon>();
+        Weapon weapon = currentWeapon.GetComponent<Weapon>();
 
         if (weapon != null)
         {
@@ -45,12 +52,10 @@ public class WeaponSpawner : MonoBehaviour
 
             if (transform.localScale.x > 0)
             {
-                // 右向き
                 direction = Vector2.right;
             }
             else
             {
-                // 左向き
                 direction = Vector2.left;
             }
 
