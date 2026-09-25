@@ -5,61 +5,186 @@ public class WeaponSpawner : MonoBehaviour
     [Header("武器")]
     [SerializeField] private GameObject weaponPrefab;
 
-    [Header("生成位置")]
+    [Header("武器を持つ位置")]
     [SerializeField] private Transform weaponSpawnPoint;
 
-    // 現在存在している武器
+    // 現在の武器
     private GameObject currentWeapon;
 
-    private void Update()
-    {
-        // 武器が存在している場合は新しく投げない
-        if (currentWeapon != null)
-            return;
 
-        // 左クリックで武器を投げる
-        if (Input.GetMouseButtonDown(0))
+    // ========================================
+    // 初期化
+    // ========================================
+    private void Start()
+    {
+        // 最初は武器を持っている状態
+        if (weaponSpawnPoint != null &&
+            weaponPrefab != null)
         {
-            SpawnWeapon();
+            EquipNewWeapon();
         }
     }
 
-    private void SpawnWeapon()
+
+    // ========================================
+    // 武器を投げる
+    // ========================================
+    private void Update()
+    {
+        // 左クリック
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 武器を持っている場合
+            if (currentWeapon != null &&
+                currentWeapon.transform.parent ==
+                weaponSpawnPoint)
+            {
+                ThrowWeapon();
+            }
+        }
+    }
+
+
+    // ========================================
+    // 新しく武器を生成
+    // ========================================
+    private void EquipNewWeapon()
     {
         if (weaponPrefab == null)
         {
-            Debug.LogWarning("Weapon Prefabが設定されていません。");
+            Debug.LogWarning(
+                "Weapon Prefabが設定されていません。"
+            );
+
             return;
         }
 
         if (weaponSpawnPoint == null)
         {
-            Debug.LogWarning("Weapon Spawn Pointが設定されていません。");
+            Debug.LogWarning(
+                "Weapon Spawn Pointが設定されていません。"
+            );
+
             return;
         }
 
+        // 武器を生成
         currentWeapon = Instantiate(
             weaponPrefab,
             weaponSpawnPoint.position,
             weaponSpawnPoint.rotation
         );
 
-        Weapon weapon = currentWeapon.GetComponent<Weapon>();
+        // 手元に装備
+        EquipWeapon(currentWeapon);
+    }
 
-        if (weapon != null)
+
+    // ========================================
+    // 武器を投げる
+    // ========================================
+    private void ThrowWeapon()
+    {
+        if (currentWeapon == null)
+            return;
+
+        Weapon weapon =
+            currentWeapon.GetComponent<Weapon>();
+
+        if (weapon == null)
         {
-            Vector2 direction;
+            Debug.LogWarning(
+                "Weaponコンポーネントが見つかりません。"
+            );
 
-            if (transform.localScale.x > 0)
-            {
-                direction = Vector2.right;
-            }
-            else
-            {
-                direction = Vector2.left;
-            }
-
-            weapon.Throw(direction, transform);
+            return;
         }
+
+        // Playerの向いている方向
+        Vector2 direction;
+
+        if (transform.localScale.x > 0)
+        {
+            direction = Vector2.right;
+        }
+        else
+        {
+            direction = Vector2.left;
+        }
+
+        // 親から外す
+        currentWeapon.transform.SetParent(null);
+
+        // 武器を投げる
+        weapon.Throw(
+            direction,
+            transform
+        );
+
+        Debug.Log("武器を投げました");
+    }
+
+
+    // ========================================
+    // 武器を装備する
+    // ========================================
+    public void EquipWeapon(
+        GameObject weapon)
+    {
+        if (weapon == null)
+            return;
+
+        if (weaponSpawnPoint == null)
+        {
+            Debug.LogWarning(
+                "Weapon Spawn Pointが設定されていません。"
+            );
+
+            return;
+        }
+
+        // 現在の武器として登録
+        currentWeapon = weapon;
+
+        // Playerの子にする
+        weapon.transform.SetParent(
+            weaponSpawnPoint
+        );
+
+        // 手元の位置
+        weapon.transform.localPosition =
+            Vector3.zero;
+
+        // 回転をリセット
+        weapon.transform.localRotation =
+            Quaternion.identity;
+
+        // Rigidbodyを取得
+        Rigidbody2D weaponRb =
+            weapon.GetComponent<Rigidbody2D>();
+
+        if (weaponRb != null)
+        {
+            // 武器を停止
+            weaponRb.linearVelocity =
+                Vector2.zero;
+
+            // 重力OFF
+            weaponRb.gravityScale = 0f;
+
+            // Rigidbodyを無効化
+            weaponRb.simulated = false;
+        }
+
+        Debug.Log("武器を装備しました");
+    }
+
+
+    // ========================================
+    // 現在の武器を取得
+    // ========================================
+    public GameObject GetCurrentWeapon()
+    {
+        return currentWeapon;
     }
 }

@@ -2,30 +2,64 @@ using UnityEngine;
 
 public class EnemyHP : MonoBehaviour
 {
-    [Header("HP設定")]
-    [SerializeField] private int maxHP = 30;
+    [Header("敵データ")]
+    [SerializeField] private EnemyData enemyData;
 
     private int currentHP;
 
+    public int CurrentHP => currentHP;
+    public int MaxHP => enemyData != null ? enemyData.maxHP : 0;
+
     private void Start()
     {
-        currentHP = maxHP;
+        if (enemyData == null)
+        {
+            Debug.LogError(
+                "EnemyHPにEnemyDataが設定されていません。"
+            );
+
+            return;
+        }
+
+        currentHP = enemyData.maxHP;
+
+        Debug.Log(
+            enemyData.enemyName +
+            " HP：" +
+            currentHP
+        );
     }
 
     public void TakeDamage(int damage)
     {
+        if (damage <= 0)
+            return;
+
         currentHP -= damage;
 
-        Debug.Log("敵が " + damage + " ダメージを受けた！ HP：" + currentHP);
+        Debug.Log(
+            enemyData.enemyName +
+            " が " +
+            damage +
+            " ダメージを受けた！ HP：" +
+            currentHP +
+            "/" +
+            enemyData.maxHP
+        );
 
-        if (currentHP <= 0) 
+        if (currentHP <= 0)
         {
             Die();
         }
     }
 
-    private void Die() 
+    private void Die()
     {
+        Debug.Log(
+            enemyData.enemyName +
+            " を倒した！"
+        );
+
         Destroy(gameObject);
     }
 }
