@@ -6,6 +6,12 @@ public class MeleeEnemy : EnemyBase
 
     private float m_attackTimer;
     private bool m_isAttacking;
+    private bool m_isRecovering;
+
+    [Header("s“®ƒpƒ^[ƒ“")]
+    [SerializeField] private float m_recoveryTime = 0.5f;
+
+    private float m_recoveryTimer;
 
     protected override void Awake()
     {
@@ -30,14 +36,44 @@ public class MeleeEnemy : EnemyBase
         if (m_player == null)
             return;
 
+        // =================================
         // UŒ‚’†
+        // =================================
         if (m_isAttacking)
         {
             ChangeState(EnemyAIState.Attack);
+
+            StopMove();
+
             return;
         }
 
+        // =================================
+        // UŒ‚Œã‚Ìd’¼
+        // =================================
+        if (m_isRecovering)
+        {
+            ChangeState(EnemyAIState.Recovery);
+
+            StopMove();
+
+            m_recoveryTimer -= Time.deltaTime;
+
+            if (m_recoveryTimer <= 0f)
+            {
+                m_isRecovering = false;
+
+                Debug.Log(
+                    "‹ßÚ“G‚Ìd’¼I—¹"
+                );
+            }
+
+            return;
+        }
+
+        // =================================
         // UŒ‚ƒN[ƒ‹ƒ^ƒCƒ€
+        // =================================
         if (m_attackTimer > 0f)
         {
             m_attackTimer -= Time.deltaTime;
@@ -46,9 +82,9 @@ public class MeleeEnemy : EnemyBase
         float distance =
             GetPlayerDistance();
 
-        // =========================
-        // Idle
-        // =========================
+        // =================================
+        // ŒŸ’m”ÍˆÍŠO
+        // =================================
         if (distance >
             m_meleeData.detectDistance)
         {
@@ -59,9 +95,9 @@ public class MeleeEnemy : EnemyBase
             return;
         }
 
-        // =========================
-        // Attack
-        // =========================
+        // =================================
+        // UŒ‚‹——£
+        // =================================
         if (distance <=
             m_meleeData.attackDistance)
         {
@@ -82,14 +118,17 @@ public class MeleeEnemy : EnemyBase
             return;
         }
 
-        // =========================
-        // Chase
-        // =========================
+        // =================================
+        // ƒvƒŒƒCƒ„[‚ğ’ÇÕ
+        // =================================
         ChangeState(EnemyAIState.Chase);
 
         MoveToPlayer();
     }
 
+    // =================================
+    // ƒvƒŒƒCƒ„[‚ÖˆÚ“®
+    // =================================
     private void MoveToPlayer()
     {
         Vector2 direction =
@@ -105,6 +144,21 @@ public class MeleeEnemy : EnemyBase
         LookAtPlayer(direction);
     }
 
+    // =================================
+    // ˆÚ“®’â~
+    // =================================
+    private void StopMove()
+    {
+        m_rb.linearVelocity =
+            new Vector2(
+                0f,
+                m_rb.linearVelocity.y
+            );
+    }
+
+    // =================================
+    // UŒ‚ŠJn
+    // =================================
     private void Attack()
     {
         Debug.Log(
@@ -112,16 +166,6 @@ public class MeleeEnemy : EnemyBase
         );
 
         m_isAttacking = true;
-
-        PlayerHP playerHP =
-            m_player.GetComponent<PlayerHP>();
-
-        if (playerHP != null)
-        {
-            playerHP.TakeDamage(
-                m_meleeData.attackDamage
-            );
-        }
 
         m_attackTimer =
             m_meleeData.attackInterval;
@@ -132,6 +176,27 @@ public class MeleeEnemy : EnemyBase
         );
     }
 
+    // =================================
+    // UŒ‚I—¹
+    // =================================
+    private void EndAttack()
+    {
+        m_isAttacking = false;
+
+        // UŒ‚Œãd’¼ŠJn
+        m_isRecovering = true;
+
+        m_recoveryTimer =
+            m_recoveryTime;
+
+        Debug.Log(
+            "‹ßÚ“G‚ªUŒ‚I—¹ ¨ Recovery"
+        );
+    }
+
+    // =================================
+    // UŒ‚”»’è
+    // =================================
     public void AttackHit(GameObject target)
     {
         if (target == null)
@@ -153,14 +218,5 @@ public class MeleeEnemy : EnemyBase
                 "‹ßÚUŒ‚‚ªPlayer‚É–½’†I"
             );
         }
-    }
-
-    private void EndAttack()
-    {
-        m_isAttacking = false;
-
-        Debug.Log(
-            "‹ßÚ“G‚ÌUŒ‚I—¹"
-        );
     }
 }

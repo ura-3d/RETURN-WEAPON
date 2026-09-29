@@ -8,7 +8,16 @@ public class RangedEnemy : EnemyBase
     [SerializeField] private Transform m_shootPoint;
     [SerializeField] private GameObject m_projectilePrefab;
 
+    [Header("行動パターン")]
+    [SerializeField] private float m_minAttackDistance = 4f;
+    [SerializeField] private float m_recoveryTime = 0.5f;
+
     private float m_attackTimer;
+
+    private bool m_isAttacking;
+    private bool m_isRecovering;
+
+    private float m_recoveryTimer;
 
     protected override void Awake()
     {
@@ -33,32 +42,93 @@ public class RangedEnemy : EnemyBase
         if (m_player == null)
             return;
 
-        // クールタイム
+        // =================================
+        // 攻撃中
+        // =================================
+        if (m_isAttacking)
+        {
+            ChangeState(EnemyAIState.Attack);
+
+            StopMove();
+
+            return;
+        }
+
+        // =================================
+        // 攻撃後の硬直
+        // =================================
+        if (m_isRecovering)
+        {
+            ChangeState(EnemyAIState.Recovery);
+
+            StopMove();
+
+            m_recoveryTimer -= Time.deltaTime;
+
+            if (m_recoveryTimer <= 0f)
+            {
+                m_isRecovering = false;
+
+                Debug.Log(
+                    "遠距離敵の硬直終了"
+                );
+            }
+
+            return;
+        }
+
+        // =================================
+        // 攻撃クールタイム
+        // =================================
         if (m_attackTimer > 0f)
         {
             m_attackTimer -= Time.deltaTime;
         }
 
-        // Playerとの距離
         float distance =
             GetPlayerDistance();
 
-        // =========================
-        // 攻撃範囲内
-        // =========================
+        // =================================
+        // 検知範囲外
+        // =================================
+        if (distance >
+            m_rangedData.detectDistance)
+        {
+            ChangeState(EnemyAIState.Idle);
+
+            StopMove();
+
+            return;
+        }
+
+        // =================================
+        // 近すぎる
+        // =================================
+        if (distance <
+            m_minAttackDistance)
+        {
+            ChangeState(EnemyAIState.Chase);
+
+            MoveAwayFromPlayer();
+
+            return;
+        }
+
+        // =================================
+        // 射撃可能距離
+        // =================================
         if (distance <=
             m_rangedData.attackDistance)
         {
-            // 移動停止
+            ChangeState(EnemyAIState.Attack);
+
             StopMove();
 
-            // Playerの方向を向く
             Vector2 direction =
                 GetPlayerDirection();
 
             LookAtPlayer(direction);
 
-            // クールタイムが終わったら発射
             if (m_attackTimer <= 0f)
             {
                 Shoot();
@@ -67,22 +137,17 @@ public class RangedEnemy : EnemyBase
             return;
         }
 
-        // =========================
-        // 検知範囲内
-        // =========================
-        if (distance <=
-            m_rangedData.detectDistance)
-        {
-            MoveToPlayer();
-            return;
-        }
+        // =================================
+        // 射撃距離まで近づく
+        // =================================
+        ChangeState(EnemyAIState.Chase);
 
-        // =========================
-        // 検知範囲外
-        // =========================
-        StopMove();
+        MoveToPlayer();
     }
 
+    // =================================
+    // プレイヤーへ近づく
+    // =================================
     private void MoveToPlayer()
     {
         Vector2 direction =
@@ -98,6 +163,30 @@ public class RangedEnemy : EnemyBase
         LookAtPlayer(direction);
     }
 
+    // =================================
+    // プレイヤーから離れる
+    // =================================
+    private void MoveAwayFromPlayer()
+    {
+        Vector2 direction =
+            GetPlayerDirection();
+
+        Vector2 moveDirection =
+            -direction;
+
+        m_rb.linearVelocity =
+            new Vector2(
+                moveDirection.x *
+                m_rangedData.moveSpeed,
+                m_rb.linearVelocity.y
+            );
+
+        LookAtPlayer(direction);
+    }
+
+    // =================================
+    // 移動停止
+    // =================================
     private void StopMove()
     {
         m_rb.linearVelocity =
@@ -107,6 +196,9 @@ public class RangedEnemy : EnemyBase
             );
     }
 
+    // =================================
+    // 射撃
+    // =================================
     private void Shoot()
     {
         if (m_shootPoint == null)
@@ -127,11 +219,9 @@ public class RangedEnemy : EnemyBase
             return;
         }
 
-        // Playerへの方向
         Vector2 direction =
             GetPlayerDirection();
 
-        // ShootPointの位置から弾を出す
         GameObject projectile =
             Instantiate(
                 m_projectilePrefab,
@@ -156,8 +246,21 @@ public class RangedEnemy : EnemyBase
             "遠距離敵が弾を発射！"
         );
 
-        // クールタイム
+        // クールタイム開始
         m_attackTimer =
             m_rangedData.attackInterval;
+
+        // 攻撃状態終了
+        m_isAttacking = false;
+
+        // Recovery開始
+        m_isRecovering = true;
+
+        m_recoveryTimer =
+            m_recoveryTime;
+
+        Debug.Log(
+            "遠距離敵が射撃 → Recovery"
+        );
     }
 }
