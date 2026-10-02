@@ -22,6 +22,13 @@ public class BossData : ScriptableObject
     public float attackInterval = 2f;
     public float attackDuration = 0.5f;
 
+    [Header("‰“‹——£UŒ‚")]
+    public float rangedAttackDistance = 6f;
+    public int rangedAttackDamage = 20;
+    public float rangedAttackInterval = 2f;
+    public float projectileSpeed = 8f;
+    public float projectileLifeTime = 5f;
+
     [Header("UŒ‚Œã")]
     public float recoveryTime = 1f;
 

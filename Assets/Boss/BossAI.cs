@@ -2,18 +2,28 @@ using UnityEngine;
 
 public class BossAI : MonoBehaviour
 {
-    [Header("Boss")]
+    [Header("Boss Data")]
     [SerializeField] private BossData m_data;
+
+    [Header("Boss HP")]
     [SerializeField] private BossHP m_bossHP;
+
+    [Header("Attack Point")]
+    [SerializeField] private BossAttackPoint m_attackPoint;
 
     [Header("Player")]
     [SerializeField] private Transform m_player;
+
+    [Header("遠距離攻撃")]
+    [SerializeField] private Transform m_shootPoint;
+    [SerializeField] private GameObject m_projectilePrefab;
 
     private Rigidbody2D m_rb;
 
     private BossAIState m_currentState;
 
-    private float m_attackTimer;
+    private float m_meleeAttackTimer;
+    private float m_rangedAttackTimer;
     private float m_recoveryTimer;
 
     public BossAIState CurrentState =>
@@ -23,16 +33,36 @@ public class BossAI : MonoBehaviour
     {
         m_rb = GetComponent<Rigidbody2D>();
 
+        // BossHPを自動取得
         if (m_bossHP == null)
         {
             m_bossHP =
                 GetComponent<BossHP>();
         }
+
+        // AttackPointを自動取得
+        if (m_attackPoint == null)
+        {
+            m_attackPoint =
+                GetComponentInChildren<BossAttackPoint>();
+        }
+
+        // ShootPointを自動取得
+        if (m_shootPoint == null)
+        {
+            Transform shootPoint =
+                transform.Find("ShootPoint");
+
+            if (shootPoint != null)
+            {
+                m_shootPoint = shootPoint;
+            }
+        }
     }
 
     private void Start()
     {
-        // Player取得
+        // Playerを取得
         if (m_player == null)
         {
             GameObject playerObject =
@@ -42,6 +72,12 @@ public class BossAI : MonoBehaviour
             {
                 m_player =
                     playerObject.transform;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Playerタグのオブジェクトが見つかりません。"
+                );
             }
         }
 
@@ -67,8 +103,21 @@ public class BossAI : MonoBehaviour
         if (m_data == null)
             return;
 
+        // HPが0なら死亡
+        if (m_bossHP != null &&
+            m_bossHP.CurrentHP <= 0)
+        {
+            ChangeState(
+                BossAIState.Dead
+            );
+        }
+
         UpdateState();
     }
+
+    // =========================================
+    // State
+    // =========================================
 
     private void UpdateState()
     {
@@ -99,14 +148,14 @@ public class BossAI : MonoBehaviour
                 break;
 
             case BossAIState.Dead:
-                StopMove();
+                UpdateDead();
                 break;
         }
     }
 
-    // =====================================
+    // =========================================
     // Idle
-    // =====================================
+    // =========================================
 
     private void UpdateIdle()
     {
@@ -124,19 +173,21 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    // =====================================
+    // =========================================
     // Chase
-    // =====================================
+    // =========================================
 
     private void UpdateChase()
     {
         float distance =
             GetPlayerDistance();
 
-        // Playerが離れた
+        // 検知範囲外
         if (distance >
             m_data.detectDistance)
         {
+            StopMove();
+
             ChangeState(
                 BossAIState.Idle
             );
@@ -144,9 +195,9 @@ public class BossAI : MonoBehaviour
             return;
         }
 
-        // 攻撃距離に入った
+        // 近接攻撃範囲
         if (distance <=
-            m_data.attackInterval)
+            m_data.attackDistance)
         {
             StopMove();
 
@@ -157,12 +208,27 @@ public class BossAI : MonoBehaviour
             return;
         }
 
+        // 遠距離攻撃範囲
+        if (distance <=
+            m_data.rangedAttackDistance)
+        {
+            StopMove();
+
+            ChangeState(
+                BossAIState.SpecialAttack
+            );
+
+            return;
+        }
+
+        // それより遠い場合
+        // Playerへ近づく
         MoveToPlayer();
     }
 
-    // =====================================
-    // Attack
-    // =====================================
+    // =========================================
+    // 近接攻撃
+    // =========================================
 
     private void UpdateAttack()
     {
@@ -170,21 +236,32 @@ public class BossAI : MonoBehaviour
 
         LookAtPlayer();
 
-        if (m_attackTimer > 0f)
+        if (m_meleeAttackTimer > 0f)
         {
-            m_attackTimer -=
+            m_meleeAttackTimer -=
                 Time.deltaTime;
 
             return;
         }
 
         Debug.Log(
-            "Bossが通常攻撃！"
+            "Bossが近接攻撃！"
         );
 
-        m_attackTimer =
+        // AttackPointを有効化
+        if (m_attackPoint != null)
+        {
+            m_attackPoint.Activate(
+                m_data.attackDamage,
+                m_data.attackDuration
+            );
+        }
+
+        // 近接攻撃クールタイム
+        m_meleeAttackTimer =
             m_data.attackInterval;
 
+        // 攻撃後Recovery
         m_recoveryTimer =
             m_data.recoveryTime;
 
@@ -193,9 +270,97 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =====================================
+    // =========================================
+    // 遠距離攻撃
+    // =========================================
+
+    private void UpdateSpecialAttack()
+    {
+        StopMove();
+
+        LookAtPlayer();
+
+        if (m_rangedAttackTimer > 0f)
+        {
+            m_rangedAttackTimer -=
+                Time.deltaTime;
+
+            return;
+        }
+
+        ShootProjectile();
+
+        // 遠距離攻撃クールタイム
+        m_rangedAttackTimer =
+            m_data.rangedAttackInterval;
+
+        // 攻撃後Recovery
+        m_recoveryTimer =
+            m_data.recoveryTime;
+
+        ChangeState(
+            BossAIState.Recovery
+        );
+    }
+
+    // =========================================
+    // Projectile発射
+    // =========================================
+
+    private void ShootProjectile()
+    {
+        if (m_shootPoint == null)
+        {
+            Debug.LogError(
+                "BossのShootPointが設定されていません！"
+            );
+
+            return;
+        }
+
+        if (m_projectilePrefab == null)
+        {
+            Debug.LogError(
+                "BossのProjectile Prefabが設定されていません！"
+            );
+
+            return;
+        }
+
+        // Player方向
+        Vector2 direction =
+            GetPlayerDirection();
+
+        // 弾を生成
+        GameObject projectile =
+            Instantiate(
+                m_projectilePrefab,
+                m_shootPoint.position,
+                Quaternion.identity
+            );
+
+        // EnemyProjectile取得
+        EnemyProjectile enemyProjectile =
+            projectile.GetComponent<EnemyProjectile>();
+
+        if (enemyProjectile != null)
+        {
+            enemyProjectile.Initialize(
+                direction,
+                m_data.projectileSpeed,
+                m_data.projectileLifeTime,
+                m_data.rangedAttackDamage
+            );
+        }
+
+        Debug.Log(
+            "Bossが遠距離攻撃を発射！"
+        );
+    }
+
+    // =========================================
     // Recovery
-    // =====================================
+    // =========================================
 
     private void UpdateRecovery()
     {
@@ -212,33 +377,16 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    // =====================================
-    // SpecialAttack
-    // =====================================
-
-    private void UpdateSpecialAttack()
-    {
-        StopMove();
-
-        Debug.Log(
-            "Boss特殊攻撃！"
-        );
-
-        ChangeState(
-            BossAIState.Recovery
-        );
-    }
-
-    // =====================================
-    // PhaseChange
-    // =====================================
+    // =========================================
+    // Phase Change
+    // =========================================
 
     private void UpdatePhaseChange()
     {
         StopMove();
 
         Debug.Log(
-            "BossのPhaseが変更されました！"
+            "Boss Phase Change!"
         );
 
         ChangeState(
@@ -246,12 +394,30 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =====================================
+    // =========================================
+    // Dead
+    // =========================================
+
+    private void UpdateDead()
+    {
+        StopMove();
+
+        Debug.Log(
+            "Boss死亡"
+        );
+
+        enabled = false;
+    }
+
+    // =========================================
     // Playerへ移動
-    // =====================================
+    // =========================================
 
     private void MoveToPlayer()
     {
+        if (m_rb == null)
+            return;
+
         Vector2 direction =
             GetPlayerDirection();
 
@@ -265,9 +431,9 @@ public class BossAI : MonoBehaviour
         LookAtPlayer();
     }
 
-    // =====================================
+    // =========================================
     // 移動停止
-    // =====================================
+    // =========================================
 
     private void StopMove()
     {
@@ -281,9 +447,9 @@ public class BossAI : MonoBehaviour
             );
     }
 
-    // =====================================
+    // =========================================
     // Playerとの距離
-    // =====================================
+    // =========================================
 
     private float GetPlayerDistance()
     {
@@ -296,9 +462,9 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =====================================
+    // =========================================
     // Playerの方向
-    // =====================================
+    // =========================================
 
     private Vector2 GetPlayerDirection()
     {
@@ -311,9 +477,9 @@ public class BossAI : MonoBehaviour
         ).normalized;
     }
 
-    // =====================================
-    // Playerを見る
-    // =====================================
+    // =========================================
+    // Playerの方向を向く
+    // =========================================
 
     private void LookAtPlayer()
     {
@@ -323,18 +489,26 @@ public class BossAI : MonoBehaviour
         if (direction.x > 0f)
         {
             transform.localScale =
-                new Vector3(1f, 1f, 1f);
+                new Vector3(
+                    1f,
+                    1f,
+                    1f
+                );
         }
         else if (direction.x < 0f)
         {
             transform.localScale =
-                new Vector3(-1f, 1f, 1f);
+                new Vector3(
+                    -1f,
+                    1f,
+                    1f
+                );
         }
     }
 
-    // =====================================
+    // =========================================
     // State変更
-    // =====================================
+    // =========================================
 
     private void ChangeState(
         BossAIState newState)

@@ -47,7 +47,9 @@ public class RangedEnemy : EnemyBase
         // =================================
         if (m_isAttacking)
         {
-            ChangeState(EnemyAIState.Attack);
+            ChangeState(
+                EnemyAIState.Attack
+            );
 
             StopMove();
 
@@ -59,11 +61,14 @@ public class RangedEnemy : EnemyBase
         // =================================
         if (m_isRecovering)
         {
-            ChangeState(EnemyAIState.Recovery);
+            ChangeState(
+                EnemyAIState.Recovery
+            );
 
             StopMove();
 
-            m_recoveryTimer -= Time.deltaTime;
+            m_recoveryTimer -=
+                Time.deltaTime;
 
             if (m_recoveryTimer <= 0f)
             {
@@ -82,7 +87,8 @@ public class RangedEnemy : EnemyBase
         // =================================
         if (m_attackTimer > 0f)
         {
-            m_attackTimer -= Time.deltaTime;
+            m_attackTimer -=
+                Time.deltaTime;
         }
 
         float distance =
@@ -94,9 +100,64 @@ public class RangedEnemy : EnemyBase
         if (distance >
             m_rangedData.detectDistance)
         {
-            ChangeState(EnemyAIState.Idle);
+            ChangeState(
+                EnemyAIState.Return
+            );
 
-            StopMove();
+            MoveToStartPosition(
+                m_rangedData.moveSpeed
+            );
+
+            // 初期位置に戻った
+            if (IsAtStartPosition())
+            {
+                StopMove();
+
+                ChangeState(
+                    EnemyAIState.Idle
+                );
+
+                Debug.Log(
+                    "遠距離敵が初期位置へ戻りました。"
+                );
+            }
+
+            return;
+        }
+
+        // =================================
+        // Return中
+        // =================================
+        if (m_currentState ==
+            EnemyAIState.Return)
+        {
+            // Playerが再び検知範囲に入った
+            if (distance <=
+                m_rangedData.detectDistance)
+            {
+                ChangeState(
+                    EnemyAIState.Chase
+                );
+
+                return;
+            }
+
+            MoveToStartPosition(
+                m_rangedData.moveSpeed
+            );
+
+            if (IsAtStartPosition())
+            {
+                StopMove();
+
+                ChangeState(
+                    EnemyAIState.Idle
+                );
+
+                Debug.Log(
+                    "遠距離敵が初期位置へ戻りました。"
+                );
+            }
 
             return;
         }
@@ -107,7 +168,9 @@ public class RangedEnemy : EnemyBase
         if (distance <
             m_minAttackDistance)
         {
-            ChangeState(EnemyAIState.Chase);
+            ChangeState(
+                EnemyAIState.Chase
+            );
 
             MoveAwayFromPlayer();
 
@@ -120,7 +183,9 @@ public class RangedEnemy : EnemyBase
         if (distance <=
             m_rangedData.attackDistance)
         {
-            ChangeState(EnemyAIState.Attack);
+            ChangeState(
+                EnemyAIState.Attack
+            );
 
             StopMove();
 
@@ -140,7 +205,9 @@ public class RangedEnemy : EnemyBase
         // =================================
         // 射撃距離まで近づく
         // =================================
-        ChangeState(EnemyAIState.Chase);
+        ChangeState(
+            EnemyAIState.Chase
+        );
 
         MoveToPlayer();
     }
@@ -262,5 +329,13 @@ public class RangedEnemy : EnemyBase
         Debug.Log(
             "遠距離敵が射撃 → Recovery"
         );
+    }
+
+    // =================================
+    // オブジェクト無効化時
+    // =================================
+    private void OnDisable()
+    {
+        CancelInvoke();
     }
 }

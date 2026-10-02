@@ -18,18 +18,30 @@ public class PlayerHP : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Coroutine blinkCoroutine;
 
+    // €–Só‘Ô
+    private bool m_isDead;
+
+    private Rigidbody2D m_rb;
+
     public int CurrentHP => currentHP;
     public int MaxHP => maxHP;
+
+    public bool IsDead => m_isDead;
 
     private void Awake()
     {
         spriteRenderer =
             GetComponent<SpriteRenderer>();
+
+        m_rb =
+            GetComponent<Rigidbody2D>();
     }
 
     private void Start()
     {
         currentHP = maxHP;
+
+        m_isDead = false;
 
         Debug.Log(
             "Player HPF" +
@@ -41,14 +53,23 @@ public class PlayerHP : MonoBehaviour
 
     private void Update()
     {
+        // €–S‚µ‚Ä‚¢‚½‚ç‰½‚à‚µ‚È‚¢
+        if (m_isDead)
+            return;
+
         if (invincibleTimer > 0f)
         {
-            invincibleTimer -= Time.deltaTime;
+            invincibleTimer -=
+                Time.deltaTime;
         }
     }
 
     public void TakeDamage(int damage)
     {
+        // €–S’†‚Íƒ_ƒ[ƒW‚ğó‚¯‚È‚¢
+        if (m_isDead)
+            return;
+
         if (damage <= 0)
             return;
 
@@ -85,12 +106,17 @@ public class PlayerHP : MonoBehaviour
         // “_–ÅŠJn
         if (blinkCoroutine != null)
         {
-            StopCoroutine(blinkCoroutine);
+            StopCoroutine(
+                blinkCoroutine
+            );
         }
 
         blinkCoroutine =
-            StartCoroutine(DamageBlink());
+            StartCoroutine(
+                DamageBlink()
+            );
 
+        // HP‚ª0‚É‚È‚Á‚½
         if (currentHP <= 0)
         {
             Die();
@@ -118,7 +144,8 @@ public class PlayerHP : MonoBehaviour
                 blinkInterval
             );
 
-            timer += blinkInterval * 2f;
+            timer +=
+                blinkInterval * 2f;
         }
 
         spriteRenderer.enabled = true;
@@ -126,10 +153,61 @@ public class PlayerHP : MonoBehaviour
         blinkCoroutine = null;
     }
 
+    // =================================
+    // €–Sˆ—
+    // =================================
     private void Die()
     {
+        if (m_isDead)
+            return;
+
+        m_isDead = true;
+
         Debug.Log(
             "Player‚ª“|‚ê‚½I"
         );
+
+        // –³“GŠÔ‚ğ‰ğœ
+        invincibleTimer = 0f;
+
+        // “_–Å‚ğ’â~
+        if (blinkCoroutine != null)
+        {
+            StopCoroutine(
+                blinkCoroutine
+            );
+
+            blinkCoroutine = null;
+        }
+
+        // Sprite‚ğ•\¦
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = true;
+        }
+
+        // Rigidbody‚ÌˆÚ“®‚ğ’â~
+        if (m_rb != null)
+        {
+            m_rb.linearVelocity =
+                Vector2.zero;
+        }
+
+        // Player‚Ì‘€ì‚ğ’â~
+        DisablePlayerControl();
+    }
+
+    // =================================
+    // Player‘€ì’â~
+    // =================================
+    private void DisablePlayerControl()
+    {
+        PlayerMove playerMove =
+            GetComponent<PlayerMove>();
+
+        if (playerMove != null)
+        {
+            playerMove.enabled = false;
+        }
     }
 }

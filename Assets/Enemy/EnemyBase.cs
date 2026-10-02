@@ -9,6 +9,9 @@ public abstract class EnemyBase : MonoBehaviour
     protected Transform m_player;
     protected Rigidbody2D m_rb;
 
+    // 敵の初期位置
+    protected Vector3 m_startPosition;
+
     // 現在のAI状態
     protected EnemyAIState m_currentState =
         EnemyAIState.Idle;
@@ -19,6 +22,10 @@ public abstract class EnemyBase : MonoBehaviour
     protected virtual void Awake()
     {
         m_rb = GetComponent<Rigidbody2D>();
+
+        // 敵が最初にいた位置を保存
+        m_startPosition =
+            transform.position;
     }
 
     protected virtual void Start()
@@ -135,5 +142,46 @@ public abstract class EnemyBase : MonoBehaviour
                 0f,
                 m_rb.linearVelocity.y
             );
+    }
+
+    // =========================
+    // 初期位置へ戻る
+    // =========================
+
+    protected void MoveToStartPosition(
+        float moveSpeed)
+    {
+        if (m_rb == null)
+            return;
+
+        Vector2 direction =
+            (
+                m_startPosition -
+                transform.position
+            ).normalized;
+
+        m_rb.linearVelocity =
+            new Vector2(
+                direction.x * moveSpeed,
+                m_rb.linearVelocity.y
+            );
+
+        // 戻る方向を向く
+        LookAtPlayer(direction);
+    }
+
+    // =========================
+    // 初期位置に戻ったか
+    // =========================
+
+    protected bool IsAtStartPosition()
+    {
+        float distance =
+            Vector2.Distance(
+                transform.position,
+                m_startPosition
+            );
+
+        return distance <= 0.1f;
     }
 }

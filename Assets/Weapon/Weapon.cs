@@ -1,10 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
     [Header("飛行設定")]
     [SerializeField] private float throwSpeed = 10f;
-    [SerializeField] private float throwUpPower = 7f;
 
     [Header("戻る設定")]
     [SerializeField] private float returnSpeed = 12f;
@@ -20,16 +20,20 @@ public class Weapon : MonoBehaviour
 
     private Rigidbody2D rb;
 
-    // プレイヤー
+    // Player
     private Transform player;
 
     // 状態
-    private bool isReturning = false;
-    private bool isBouncing = false;
-    private bool isOnGround = false;
+    private bool isReturning;
+    private bool isBouncing;
+    private bool isOnGround;
 
     // 壁反射時間
-    private float bounceTimer = 0f;
+    private float bounceTimer;
+
+    // 今回の投擲ですでに攻撃した敵
+    private HashSet<EnemyHP> hitEnemies =
+        new HashSet<EnemyHP>();
 
 
     // ========================================
@@ -38,6 +42,12 @@ public class Weapon : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        if (rb != null)
+        {
+            // 武器が飛んでいる間に回転しない
+            rb.freezeRotation = true;
+        }
     }
 
 
@@ -48,34 +58,40 @@ public class Weapon : MonoBehaviour
         Vector2 direction,
         Transform playerTransform)
     {
+        if (rb == null)
+            return;
+
         player = playerTransform;
 
-        // 状態をリセット
+        // 状態リセット
         isReturning = false;
         isBouncing = false;
         isOnGround = false;
+
         bounceTimer = 0f;
 
-        // Rigidbodyを有効化
+        // 今回の投擲で攻撃した敵をリセット
+        hitEnemies.Clear();
+
+        // Rigidbody有効
         rb.simulated = true;
 
-        // 重力を有効化
+        // 重力ON
         rb.gravityScale = 3f;
 
-        // 前方 + 上方向へ投げる
-        Vector2 throwVelocity =
-            new Vector2(
-                direction.x * throwSpeed,
-                throwUpPower
-            );
+        // ====================================
+        // マウス方向へ投げる
+        // ====================================
+        Vector2 throwDirection =
+            direction.normalized;
 
         rb.linearVelocity =
-            throwVelocity;
+            throwDirection * throwSpeed;
     }
 
 
     // ========================================
-    // 毎フレーム処理
+    // 毎フレーム
     // ========================================
     private void Update()
     {
@@ -84,7 +100,7 @@ public class Weapon : MonoBehaviour
 
 
         // ====================================
-        // 床に落ちている
+        // 地面に落ちている
         // ====================================
         if (isOnGround)
         {
@@ -97,10 +113,8 @@ public class Weapon : MonoBehaviour
                     player.position
                 );
 
-            // プレイヤーが近づいた
             if (distance <= pickupDistance)
             {
-                // Eキーで拾う
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     PickupWeapon();
@@ -119,15 +133,14 @@ public class Weapon : MonoBehaviour
             bounceTimer -=
                 Time.deltaTime;
 
-            // 反射時間終了
             if (bounceTimer <= 0f)
             {
                 isBouncing = false;
 
-                // プレイヤーへ戻る
+                // Playerへ帰還
                 isReturning = true;
 
-                // 戻るときは重力OFF
+                // 帰還中は重力OFF
                 rb.gravityScale = 0f;
             }
 
@@ -136,7 +149,7 @@ public class Weapon : MonoBehaviour
 
 
         // ====================================
-        // プレイヤーへ戻る
+        // Playerへ帰還
         // ====================================
         if (isReturning)
         {
@@ -146,19 +159,16 @@ public class Weapon : MonoBehaviour
                     transform.position
                 ).normalized;
 
-            // プレイヤー方向へ移動
             rb.linearVelocity =
                 direction * returnSpeed;
 
-            // プレイヤーに十分近づいた
+            // Playerに近づいた
             if (Vector2.Distance(
                 transform.position,
                 player.position
             ) < 0.5f)
             {
                 ReturnToPlayer();
-
-                return;
             }
         }
     }
@@ -171,35 +181,43 @@ public class Weapon : MonoBehaviour
         Collision2D collision)
     {
         Debug.Log(
-            "Weaponが衝突しました："
-            + collision.gameObject.name
+            "Weaponが衝突しました：" +
+            collision.gameObject.name
         );
 
 
         // ====================================
         // 敵
         // ====================================
-
-        // EnemyHPを親も含めて探す
         EnemyHP enemyHP =
             collision.gameObject
             .GetComponentInParent<EnemyHP>();
 
         if (enemyHP != null)
         {
-            // 床に落ちている場合は攻撃しない
+            // 地面にある武器は攻撃しない
             if (isOnGround)
                 return;
 
-            Debug.Log("敵に命中！");
+            // 同じ敵には今回の投擲中1回だけ
+            if (!hitEnemies.Contains(enemyHP))
+            {
+                hitEnemies.Add(enemyHP);
 
-            // ダメージ
-            enemyHP.TakeDamage(damage);
+                Debug.Log(
+                    "敵に命中！"
+                );
 
-            // プレイヤーへ戻る
+                enemyHP.TakeDamage(
+                    damage
+                );
+            }
+
+            // 敵に当たったら帰還
             isReturning = true;
+            isBouncing = false;
 
-            // 戻るときは重力OFF
+            // 重力OFF
             rb.gravityScale = 0f;
 
             return;
@@ -207,7 +225,7 @@ public class Weapon : MonoBehaviour
 
 
         // ====================================
-        // 床
+        // 地面
         // ====================================
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -219,11 +237,9 @@ public class Weapon : MonoBehaviour
             isReturning = false;
             isBouncing = false;
 
-            // その場で停止
             rb.linearVelocity =
                 Vector2.zero;
 
-            // 重力OFF
             rb.gravityScale = 0f;
 
             return;
@@ -239,9 +255,18 @@ public class Weapon : MonoBehaviour
                 "壁に当たった！反射します"
             );
 
-            // 現在の移動方向
-            Vector2 currentDirection =
-                rb.linearVelocity.normalized;
+            Vector2 currentDirection;
+
+            if (rb.linearVelocity.sqrMagnitude > 0.01f)
+            {
+                currentDirection =
+                    rb.linearVelocity.normalized;
+            }
+            else
+            {
+                currentDirection =
+                    Vector2.right;
+            }
 
             // 壁の法線
             Vector2 normal =
@@ -254,12 +279,14 @@ public class Weapon : MonoBehaviour
                     normal
                 );
 
+            // 重力OFF
+            rb.gravityScale = 0f;
+
             // 反射
             rb.linearVelocity =
                 reflectedDirection.normalized
                 * throwSpeed;
 
-            // 一時的に反射状態
             isReturning = false;
             isBouncing = true;
 
@@ -271,7 +298,7 @@ public class Weapon : MonoBehaviour
 
 
         // ====================================
-        // プレイヤー
+        // Player
         // ====================================
         if (isReturning &&
             collision.gameObject.CompareTag("Player"))
@@ -288,40 +315,8 @@ public class Weapon : MonoBehaviour
     // ========================================
     private void PickupWeapon()
     {
-        Debug.Log("武器を拾います");
-
-        if (player == null)
-            return;
-
-        WeaponSpawner spawner =
-            player.GetComponent<WeaponSpawner>();
-
-        if (spawner != null)
-        {
-            spawner.EquipWeapon(
-                gameObject
-            );
-        }
-
-        // 状態をリセット
-        isOnGround = false;
-        isReturning = false;
-        isBouncing = false;
-
-        rb.linearVelocity =
-            Vector2.zero;
-
-        rb.gravityScale = 0f;
-    }
-
-
-    // ========================================
-    // プレイヤーへ戻った
-    // ========================================
-    private void ReturnToPlayer()
-    {
         Debug.Log(
-            "武器がプレイヤーに戻りました"
+            "武器を拾います"
         );
 
         if (player == null)
@@ -337,9 +332,52 @@ public class Weapon : MonoBehaviour
             );
         }
 
-        // 状態をリセット
+        ResetWeaponState();
+    }
+
+
+    // ========================================
+    // Playerへ戻った
+    // ========================================
+    private void ReturnToPlayer()
+    {
+        Debug.Log(
+            "武器がPlayerに戻りました"
+        );
+
+        if (player == null)
+            return;
+
+        WeaponSpawner spawner =
+            player.GetComponent<WeaponSpawner>();
+
+        if (spawner != null)
+        {
+            spawner.EquipWeapon(
+                gameObject
+            );
+        }
+
+        ResetWeaponState();
+    }
+
+
+    // ========================================
+    // 武器状態リセット
+    // ========================================
+    private void ResetWeaponState()
+    {
         isReturning = false;
         isBouncing = false;
         isOnGround = false;
+
+        bounceTimer = 0f;
+
+        rb.linearVelocity =
+            Vector2.zero;
+
+        rb.gravityScale = 0f;
+
+        hitEnemies.Clear();
     }
 }

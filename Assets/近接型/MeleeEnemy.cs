@@ -5,6 +5,7 @@ public class MeleeEnemy : EnemyBase
     protected MeleeEnemyData m_meleeData;
 
     private float m_attackTimer;
+
     private bool m_isAttacking;
     private bool m_isRecovering;
 
@@ -41,7 +42,9 @@ public class MeleeEnemy : EnemyBase
         // =================================
         if (m_isAttacking)
         {
-            ChangeState(EnemyAIState.Attack);
+            ChangeState(
+                EnemyAIState.Attack
+            );
 
             StopMove();
 
@@ -53,11 +56,14 @@ public class MeleeEnemy : EnemyBase
         // =================================
         if (m_isRecovering)
         {
-            ChangeState(EnemyAIState.Recovery);
+            ChangeState(
+                EnemyAIState.Recovery
+            );
 
             StopMove();
 
-            m_recoveryTimer -= Time.deltaTime;
+            m_recoveryTimer -=
+                Time.deltaTime;
 
             if (m_recoveryTimer <= 0f)
             {
@@ -76,7 +82,8 @@ public class MeleeEnemy : EnemyBase
         // =================================
         if (m_attackTimer > 0f)
         {
-            m_attackTimer -= Time.deltaTime;
+            m_attackTimer -=
+                Time.deltaTime;
         }
 
         float distance =
@@ -88,9 +95,64 @@ public class MeleeEnemy : EnemyBase
         if (distance >
             m_meleeData.detectDistance)
         {
-            ChangeState(EnemyAIState.Idle);
+            ChangeState(
+                EnemyAIState.Return
+            );
 
-            StopMove();
+            MoveToStartPosition(
+                m_meleeData.moveSpeed
+            );
+
+            // 初期位置に戻った
+            if (IsAtStartPosition())
+            {
+                StopMove();
+
+                ChangeState(
+                    EnemyAIState.Idle
+                );
+
+                Debug.Log(
+                    "近接敵が初期位置へ戻りました。"
+                );
+            }
+
+            return;
+        }
+
+        // =================================
+        // Return中
+        // =================================
+        if (m_currentState ==
+            EnemyAIState.Return)
+        {
+            // Playerが再び検知範囲に入った
+            if (distance <=
+                m_meleeData.detectDistance)
+            {
+                ChangeState(
+                    EnemyAIState.Chase
+                );
+
+                return;
+            }
+
+            MoveToStartPosition(
+                m_meleeData.moveSpeed
+            );
+
+            if (IsAtStartPosition())
+            {
+                StopMove();
+
+                ChangeState(
+                    EnemyAIState.Idle
+                );
+
+                Debug.Log(
+                    "近接敵が初期位置へ戻りました。"
+                );
+            }
 
             return;
         }
@@ -101,7 +163,9 @@ public class MeleeEnemy : EnemyBase
         if (distance <=
             m_meleeData.attackDistance)
         {
-            ChangeState(EnemyAIState.Attack);
+            ChangeState(
+                EnemyAIState.Attack
+            );
 
             StopMove();
 
@@ -121,7 +185,9 @@ public class MeleeEnemy : EnemyBase
         // =================================
         // プレイヤーを追跡
         // =================================
-        ChangeState(EnemyAIState.Chase);
+        ChangeState(
+            EnemyAIState.Chase
+        );
 
         MoveToPlayer();
     }
@@ -142,18 +208,6 @@ public class MeleeEnemy : EnemyBase
             );
 
         LookAtPlayer(direction);
-    }
-
-    // =================================
-    // 移動停止
-    // =================================
-    private void StopMove()
-    {
-        m_rb.linearVelocity =
-            new Vector2(
-                0f,
-                m_rb.linearVelocity.y
-            );
     }
 
     // =================================
@@ -218,5 +272,15 @@ public class MeleeEnemy : EnemyBase
                 "近接攻撃がPlayerに命中！"
             );
         }
+    }
+
+    // =================================
+    // オブジェクト破棄時
+    // =================================
+    private void OnDisable()
+    {
+        CancelInvoke(
+            nameof(EndAttack)
+        );
     }
 }

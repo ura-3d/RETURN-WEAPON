@@ -9,10 +9,16 @@ public class BossHP : MonoBehaviour
 
     private int m_currentPhase = 1;
 
-    public int CurrentHP => m_currentHP;
-    public int MaxHP => m_data != null ? m_data.MaxHP : 0;
+    public int CurrentHP =>
+        m_currentHP;
 
-    public int CurrentPhase => m_currentPhase;
+    public int MaxHP =>
+        m_data != null ?
+        m_data.MaxHP :
+        0;
+
+    public int CurrentPhase =>
+        m_currentPhase;
 
     private void Start()
     {
@@ -43,6 +49,9 @@ public class BossHP : MonoBehaviour
         if (damage <= 0)
             return;
 
+        if (m_currentHP <= 0)
+            return;
+
         m_currentHP -= damage;
 
         if (m_currentHP < 0)
@@ -70,7 +79,8 @@ public class BossHP : MonoBehaviour
     private void CheckPhase()
     {
         if (m_currentPhase == 1 &&
-            m_currentHP <= m_data.phase2HP)
+            m_currentHP <=
+            m_data.phase2HP)
         {
             m_currentPhase = 2;
 
@@ -82,7 +92,8 @@ public class BossHP : MonoBehaviour
         }
 
         if (m_currentPhase == 2 &&
-            m_currentHP <= m_data.phase3HP)
+            m_currentHP <=
+            m_data.phase3HP)
         {
             m_currentPhase = 3;
 
