@@ -18,30 +18,29 @@ public class PlayerHP : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Coroutine blinkCoroutine;
 
-    // 死亡状態
-    private bool m_isDead;
+    private PlayerMove playerMove;
+    private WeaponSpawner weaponSpawner;
 
-    private Rigidbody2D m_rb;
+    private bool isDead = false;
 
     public int CurrentHP => currentHP;
     public int MaxHP => maxHP;
-
-    public bool IsDead => m_isDead;
 
     private void Awake()
     {
         spriteRenderer =
             GetComponent<SpriteRenderer>();
 
-        m_rb =
-            GetComponent<Rigidbody2D>();
+        playerMove =
+            GetComponent<PlayerMove>();
+
+        weaponSpawner =
+            GetComponent<WeaponSpawner>();
     }
 
     private void Start()
     {
         currentHP = maxHP;
-
-        m_isDead = false;
 
         Debug.Log(
             "Player HP：" +
@@ -53,21 +52,16 @@ public class PlayerHP : MonoBehaviour
 
     private void Update()
     {
-        // 死亡していたら何もしない
-        if (m_isDead)
-            return;
-
         if (invincibleTimer > 0f)
         {
-            invincibleTimer -=
-                Time.deltaTime;
+            invincibleTimer -= Time.deltaTime;
         }
     }
 
+    // ダメージ処理
     public void TakeDamage(int damage)
     {
-        // 死亡中はダメージを受けない
-        if (m_isDead)
+        if (isDead)
             return;
 
         if (damage <= 0)
@@ -103,12 +97,10 @@ public class PlayerHP : MonoBehaviour
             maxHP
         );
 
-        // 点滅開始
+        // ダメージ点滅開始
         if (blinkCoroutine != null)
         {
-            StopCoroutine(
-                blinkCoroutine
-            );
+            StopCoroutine(blinkCoroutine);
         }
 
         blinkCoroutine =
@@ -116,13 +108,14 @@ public class PlayerHP : MonoBehaviour
                 DamageBlink()
             );
 
-        // HPが0になった
+        // HPが0になったら死亡
         if (currentHP <= 0)
         {
             Die();
         }
     }
 
+    // ダメージ時の点滅
     private IEnumerator DamageBlink()
     {
         if (spriteRenderer == null)
@@ -153,61 +146,55 @@ public class PlayerHP : MonoBehaviour
         blinkCoroutine = null;
     }
 
-    // =================================
-    // 死亡処理
-    // =================================
+    // プレイヤー死亡
     private void Die()
     {
-        if (m_isDead)
+        if (isDead)
             return;
 
-        m_isDead = true;
+        isDead = true;
 
         Debug.Log(
             "Playerが倒れた！"
         );
 
-        // 無敵時間を解除
-        invincibleTimer = 0f;
-
-        // 点滅を停止
-        if (blinkCoroutine != null)
-        {
-            StopCoroutine(
-                blinkCoroutine
-            );
-
-            blinkCoroutine = null;
-        }
-
-        // Spriteを表示
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = true;
-        }
-
-        // Rigidbodyの移動を停止
-        if (m_rb != null)
-        {
-            m_rb.linearVelocity =
-                Vector2.zero;
-        }
-
-        // Playerの操作を停止
-        DisablePlayerControl();
-    }
-
-    // =================================
-    // Player操作停止
-    // =================================
-    private void DisablePlayerControl()
-    {
-        PlayerMove playerMove =
-            GetComponent<PlayerMove>();
-
+        // プレイヤー操作停止
         if (playerMove != null)
         {
             playerMove.enabled = false;
+        }
+
+        // 武器操作停止
+        if (weaponSpawner != null)
+        {
+            weaponSpawner.enabled = false;
+        }
+
+        // Rigidbody停止
+        Rigidbody2D rb =
+            GetComponent<Rigidbody2D>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity =
+                Vector2.zero;
+
+            rb.simulated = false;
+        }
+
+        // ゲームオーバー
+        GameOverManager gameOverManager =
+            FindFirstObjectByType<GameOverManager>();
+
+        if (gameOverManager != null)
+        {
+            gameOverManager.GameOver();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "GameOverManagerがSceneにありません。"
+            );
         }
     }
 }

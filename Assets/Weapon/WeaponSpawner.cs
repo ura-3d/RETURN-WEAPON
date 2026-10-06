@@ -11,10 +11,7 @@ public class WeaponSpawner : MonoBehaviour
     // 現在装備している武器
     private GameObject currentWeapon;
 
-
-    // ========================================
     // 初期化
-    // ========================================
     private void Start()
     {
         if (weaponSpawnPoint != null &&
@@ -24,10 +21,7 @@ public class WeaponSpawner : MonoBehaviour
         }
     }
 
-
-    // ========================================
     // 入力
-    // ========================================
     private void Update()
     {
         // 左クリック
@@ -40,10 +34,7 @@ public class WeaponSpawner : MonoBehaviour
         }
     }
 
-
-    // ========================================
     // 武器を投げられるか
-    // ========================================
     private bool CanThrowWeapon()
     {
         if (currentWeapon == null)
@@ -56,10 +47,7 @@ public class WeaponSpawner : MonoBehaviour
                weaponSpawnPoint;
     }
 
-
-    // ========================================
     // 新しい武器を生成
-    // ========================================
     private void EquipNewWeapon()
     {
         if (weaponPrefab == null)
@@ -90,10 +78,7 @@ public class WeaponSpawner : MonoBehaviour
         EquipWeapon(currentWeapon);
     }
 
-
-    // ========================================
     // 武器を投げる
-    // ========================================
     private void ThrowWeapon()
     {
         if (currentWeapon == null)
@@ -111,10 +96,7 @@ public class WeaponSpawner : MonoBehaviour
             return;
         }
 
-
-        // ====================================
         // Main Camera確認
-        // ====================================
         if (Camera.main == null)
         {
             Debug.LogWarning(
@@ -124,17 +106,11 @@ public class WeaponSpawner : MonoBehaviour
             return;
         }
 
-
-        // ====================================
         // マウスの画面座標
-        // ====================================
         Vector3 mouseScreenPosition =
             Input.mousePosition;
 
-
-        // ====================================
         // マウスをワールド座標へ変換
-        // ====================================
         Vector3 mouseWorldPosition =
             Camera.main.ScreenToWorldPoint(
                 mouseScreenPosition
@@ -142,10 +118,7 @@ public class WeaponSpawner : MonoBehaviour
 
         mouseWorldPosition.z = 0f;
 
-
-        // ====================================
         // Playerからマウスへの方向
-        // ====================================
         Vector2 direction =
             (
                 mouseWorldPosition -
@@ -159,10 +132,7 @@ public class WeaponSpawner : MonoBehaviour
             return;
         }
 
-
-        // ====================================
         // 投げる武器を保存
-        // ====================================
         GameObject thrownWeapon =
             currentWeapon;
 
@@ -170,9 +140,7 @@ public class WeaponSpawner : MonoBehaviour
         currentWeapon = null;
 
 
-        // ====================================
         // Playerから外す
-        // ====================================
         thrownWeapon.transform.SetParent(
             null
         );

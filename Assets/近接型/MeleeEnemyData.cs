@@ -7,5 +7,5 @@ using UnityEngine;
 public class MeleeEnemyData : EnemyData
 {
     [Header("‹ßÚUŒ‚")]
-    public float attackDuration = 0.3f;
+    public float attackDuration = 5f;
 }

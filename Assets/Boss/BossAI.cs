@@ -115,10 +115,7 @@ public class BossAI : MonoBehaviour
         UpdateState();
     }
 
-    // =========================================
     // State
-    // =========================================
-
     private void UpdateState()
     {
         switch (m_currentState)
@@ -153,10 +150,7 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    // =========================================
     // Idle
-    // =========================================
-
     private void UpdateIdle()
     {
         StopMove();
@@ -173,10 +167,7 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    // =========================================
     // Chase
-    // =========================================
-
     private void UpdateChase()
     {
         float distance =
@@ -226,10 +217,7 @@ public class BossAI : MonoBehaviour
         MoveToPlayer();
     }
 
-    // =========================================
     // ãﬂê⁄çUåÇ
-    // =========================================
-
     private void UpdateAttack()
     {
         StopMove();
@@ -270,10 +258,7 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =========================================
     // âìãóó£çUåÇ
-    // =========================================
-
     private void UpdateSpecialAttack()
     {
         StopMove();
@@ -303,10 +288,7 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =========================================
     // Projectileî≠éÀ
-    // =========================================
-
     private void ShootProjectile()
     {
         if (m_shootPoint == null)
@@ -358,10 +340,7 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =========================================
     // Recovery
-    // =========================================
-
     private void UpdateRecovery()
     {
         StopMove();
@@ -377,10 +356,7 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    // =========================================
     // Phase Change
-    // =========================================
-
     private void UpdatePhaseChange()
     {
         StopMove();
@@ -394,10 +370,7 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =========================================
     // Dead
-    // =========================================
-
     private void UpdateDead()
     {
         StopMove();
@@ -409,10 +382,7 @@ public class BossAI : MonoBehaviour
         enabled = false;
     }
 
-    // =========================================
     // PlayerÇ÷à⁄ìÆ
-    // =========================================
-
     private void MoveToPlayer()
     {
         if (m_rb == null)
@@ -431,10 +401,7 @@ public class BossAI : MonoBehaviour
         LookAtPlayer();
     }
 
-    // =========================================
     // à⁄ìÆí‚é~
-    // =========================================
-
     private void StopMove()
     {
         if (m_rb == null)
@@ -447,10 +414,7 @@ public class BossAI : MonoBehaviour
             );
     }
 
-    // =========================================
     // PlayerÇ∆ÇÃãóó£
-    // =========================================
-
     private float GetPlayerDistance()
     {
         if (m_player == null)
@@ -462,10 +426,7 @@ public class BossAI : MonoBehaviour
         );
     }
 
-    // =========================================
     // PlayerÇÃï˚å¸
-    // =========================================
-
     private Vector2 GetPlayerDirection()
     {
         if (m_player == null)
@@ -477,10 +438,7 @@ public class BossAI : MonoBehaviour
         ).normalized;
     }
 
-    // =========================================
     // PlayerÇÃï˚å¸Çå¸Ç≠
-    // =========================================
-
     private void LookAtPlayer()
     {
         Vector2 direction =
@@ -506,10 +464,7 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    // =========================================
     // StateïœçX
-    // =========================================
-
     private void ChangeState(
         BossAIState newState)
     {
