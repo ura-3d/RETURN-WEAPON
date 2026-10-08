@@ -114,7 +114,7 @@ TextureImporter:
         width: 83
         height: 184
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -136,7 +136,7 @@ TextureImporter:
         width: 95
         height: 184
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -180,7 +180,7 @@ TextureImporter:
         width: 96
         height: 184
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -202,7 +202,7 @@ TextureImporter:
         width: 96
         height: 184
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -224,7 +224,7 @@ TextureImporter:
         width: 99
         height: 184
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -233,6 +233,28 @@ TextureImporter:
       bones: []
       spriteID: 4c00b19390b00f24089ae2e26c7ef98d
       internalID: -2073582013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\u30B8\u30E3\u30F3\u30D7_6"
+      rect:
+        serializedVersion: 2
+        x: 674
+        y: 0
+        width: 97
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 79da0200cb362fd47b1d06756cfc756f
+      internalID: -621711574
       vertices: []
       indices: 
       edges: []
@@ -259,6 +281,7 @@ TextureImporter:
       "\u30B8\u30E3\u30F3\u30D7_3": 566094975
       "\u30B8\u30E3\u30F3\u30D7_4": 390477434
       "\u30B8\u30E3\u30F3\u30D7_5": -2073582013
+      "\u30B8\u30E3\u30F3\u30D7_6": -621711574
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
