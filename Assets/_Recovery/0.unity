@@ -2639,21 +2639,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 3293441334368807433, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 1
+    - target: {fileID: 2776451581738512988, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -8302270126532065612, guid: f7b10521bcdc51f4196f9815abbc793e, type: 3}
+    - target: {fileID: 3796181645185877022, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2720766
       objectReference: {fileID: 0}
-    - target: {fileID: 3293441334368807433, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 1
+    - target: {fileID: 3796181645185877022, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.1094183
       objectReference: {fileID: 0}
     - target: {fileID: 3796181645185877022, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.1115
       objectReference: {fileID: 0}
     - target: {fileID: 3796181645185877022, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.0717
       objectReference: {fileID: 0}
     - target: {fileID: 3796181645185877022, guid: 797d7a8554086944fa2fbf41c38b65c1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2710,7 +2714,7 @@ Animator:
   m_GameObject: {fileID: 3188480426379640563}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 04c6e43523dac44418da6bb14ae9e5be, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
