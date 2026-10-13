@@ -508,13 +508,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_0"
+      name: Idle(3)
       rect:
         serializedVersion: 2
-        x: 445
-        y: 443
-        width: 167
-        height: 167
+        x: 465
+        y: 467
+        width: 149
+        height: 128
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -530,13 +530,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_1"
+      name: Idle(4)
       rect:
         serializedVersion: 2
-        x: 639
-        y: 445
-        width: 216
-        height: 172
+        x: 671
+        y: 467
+        width: 148
+        height: 131
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -552,13 +552,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_13"
+      name: Idle(1)
       rect:
         serializedVersion: 2
-        x: 63
-        y: 449
-        width: 151
-        height: 144
+        x: 68
+        y: 465
+        width: 131
+        height: 129
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -574,13 +574,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_14"
+      name: Idle(2)
       rect:
         serializedVersion: 2
         x: 259
-        y: 453
+        y: 470
         width: 144
-        height: 177
+        height: 122
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -596,13 +596,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_18"
+      name: Idle(8)
       rect:
         serializedVersion: 2
-        x: 1446
-        y: 446
-        width: 192
-        height: 159
+        x: 1472
+        y: 471
+        width: 150
+        height: 118
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -618,13 +618,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_23"
+      name: Idle(5)
       rect:
         serializedVersion: 2
-        x: 881
-        y: 453
+        x: 882
+        y: 473
         width: 136
-        height: 132
+        height: 112
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -640,13 +640,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_24"
+      name: Idle(6)
       rect:
         serializedVersion: 2
-        x: 1053
-        y: 437
-        width: 187
-        height: 168
+        x: 1073
+        y: 468
+        width: 145
+        height: 122
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -662,13 +662,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_26"
+      name: Idle(7)
       rect:
         serializedVersion: 2
-        x: 1265
-        y: 455
-        width: 162
-        height: 127
+        x: 1278
+        y: 468
+        width: 149
+        height: 114
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -684,13 +684,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_61"
+      name: move(6)
       rect:
         serializedVersion: 2
         x: 823
-        y: 216
-        width: 160
-        height: 160
+        y: 260
+        width: 144
+        height: 116
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -706,12 +706,12 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_68"
+      name: move(1)
       rect:
         serializedVersion: 2
-        x: 34
-        y: 246
-        width: 166
+        x: 59
+        y: 247
+        width: 134
         height: 130
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -728,16 +728,16 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_69"
+      name: move(2)
       rect:
         serializedVersion: 2
-        x: 181
+        x: 203
         y: 262
-        width: 175
+        width: 140
         height: 111
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 32, y: 0, z: 0, w: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
@@ -750,7 +750,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_70"
+      name: move(3)
       rect:
         serializedVersion: 2
         x: 364
@@ -772,7 +772,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_71"
+      name: move(4)
       rect:
         serializedVersion: 2
         x: 509
@@ -794,13 +794,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_74"
+      name: move(8)
       rect:
         serializedVersion: 2
         x: 1170
-        y: 228
+        y: 260
         width: 142
-        height: 146
+        height: 114
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -816,13 +816,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_75"
+      name: move(9)
       rect:
         serializedVersion: 2
-        x: 1321
-        y: 232
-        width: 176
-        height: 144
+        x: 1339
+        y: 251
+        width: 161
+        height: 127
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -838,13 +838,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_76"
+      name: move(10)
       rect:
         serializedVersion: 2
-        x: 1508
-        y: 235
-        width: 186
-        height: 145
+        x: 1527
+        y: 257
+        width: 153
+        height: 112
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -860,13 +860,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_77"
+      name: move(11)
       rect:
         serializedVersion: 2
-        x: 1692
-        y: 238
-        width: 173
-        height: 138
+        x: 1709
+        y: 263
+        width: 148
+        height: 113
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -882,13 +882,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_78"
+      name: move(12)
       rect:
         serializedVersion: 2
-        x: 1865
-        y: 222
-        width: 207
-        height: 168
+        x: 1890
+        y: 257
+        width: 143
+        height: 113
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -904,13 +904,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_79"
+      name: move(7)
       rect:
         serializedVersion: 2
-        x: 989
-        y: 186
+        x: 982
+        y: 256
         width: 168
-        height: 182
+        height: 115
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -926,13 +926,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_83"
+      name: move(5)
       rect:
         serializedVersion: 2
-        x: 656
-        y: 235
-        width: 166
-        height: 122
+        x: 662
+        y: 266
+        width: 154
+        height: 100
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -948,15 +948,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_98"
+      name: Attack(1)
       rect:
         serializedVersion: 2
-        x: 38
-        y: 59
+        x: 50
+        y: 51
         width: 146
-        height: 142
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        height: 125
+      alignment: 9
+      pivot: {x: 0.50000006, y: 0.50000024}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -970,13 +970,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_99"
+      name: Attack(3)
       rect:
         serializedVersion: 2
-        x: 394
-        y: 32
-        width: 173
-        height: 177
+        x: 414
+        y: 51
+        width: 153
+        height: 125
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -992,13 +992,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_113"
+      name: Attack(8)
       rect:
         serializedVersion: 2
         x: 1296
-        y: 0
-        width: 566
-        height: 193
+        y: 55
+        width: 194
+        height: 107
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1014,13 +1014,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_119"
+      name: Attack(6)
       rect:
         serializedVersion: 2
-        x: 939
-        y: 19
-        width: 178
-        height: 152
+        x: 953
+        y: 49
+        width: 160
+        height: 125
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1036,13 +1036,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_122"
+      name: Attack(2)
       rect:
         serializedVersion: 2
-        x: 217
-        y: 0
-        width: 156
-        height: 165
+        x: 234
+        y: 51
+        width: 145
+        height: 127
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1058,13 +1058,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_123"
+      name: Attack(4)
       rect:
         serializedVersion: 2
-        x: 571
-        y: 21
-        width: 200
-        height: 142
+        x: 589
+        y: 58
+        width: 182
+        height: 124
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1080,12 +1080,12 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_124"
+      name: Attack(5)
       rect:
         serializedVersion: 2
-        x: 770
-        y: 27
-        width: 167
+        x: 776
+        y: 43
+        width: 164
         height: 138
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -1102,15 +1102,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u30B9\u30E9\u30A4\u30E0 (2)_125"
+      name: Attack(7)
       rect:
         serializedVersion: 2
         x: 1118
-        y: 23
+        y: 48
         width: 174
-        height: 146
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        height: 123
+      alignment: 9
+      pivot: {x: 0.48291928, y: 0.6628542}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1137,8 +1137,34 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u30B9\u30E9\u30A4\u30E0 (2)_0": -3779487503909303756
-      "\u30B9\u30E9\u30A4\u30E0 (2)_1": 7208968996955547946
+      Attack(1): -9066351095749426076
+      Attack(2): -2686084545658287520
+      Attack(3): 7801257926652017010
+      Attack(4): -8868050780551732588
+      Attack(5): -6006103519270627218
+      Attack(6): -1625443224456751867
+      Attack(7): 1228178363717662141
+      Attack(8): -4089190578609902987
+      Idle(1): -8818800395080922475
+      Idle(2): -512386673320276991
+      Idle(3): -3779487503909303756
+      Idle(4): 7208968996955547946
+      Idle(5): 702498098622096006
+      Idle(6): 4178513646748738065
+      Idle(7): 4664386564767976723
+      Idle(8): -5340449066220780222
+      move(1): 7018931914748319690
+      move(10): 4633736193158786380
+      move(11): -3562158101063110368
+      move(12): -7978718547331414013
+      move(2): 5456010530284260712
+      move(3): 7917339383568630190
+      move(4): 5437007103373958063
+      move(5): 8569948929447726469
+      move(6): -3569144999053879810
+      move(7): -4825868669068063099
+      move(8): 3664238546477500837
+      move(9): -4559030307952001978
       "\u30B9\u30E9\u30A4\u30E0 (2)_10": -4738904730326836052
       "\u30B9\u30E9\u30A4\u30E0 (2)_100": 4752745747519807640
       "\u30B9\u30E9\u30A4\u30E0 (2)_101": -5600898783725398089
@@ -1154,25 +1180,18 @@ TextureImporter:
       "\u30B9\u30E9\u30A4\u30E0 (2)_110": -4958784828526769752
       "\u30B9\u30E9\u30A4\u30E0 (2)_111": 9124594334564836616
       "\u30B9\u30E9\u30A4\u30E0 (2)_112": 4205734403866637764
-      "\u30B9\u30E9\u30A4\u30E0 (2)_113": -4089190578609902987
       "\u30B9\u30E9\u30A4\u30E0 (2)_114": -9159397266117981984
       "\u30B9\u30E9\u30A4\u30E0 (2)_115": -8502566257054243445
       "\u30B9\u30E9\u30A4\u30E0 (2)_116": 59374592307143223
       "\u30B9\u30E9\u30A4\u30E0 (2)_117": -7422862600883084205
       "\u30B9\u30E9\u30A4\u30E0 (2)_118": 7937453143267545462
-      "\u30B9\u30E9\u30A4\u30E0 (2)_119": -1625443224456751867
       "\u30B9\u30E9\u30A4\u30E0 (2)_12": -8636286999149251534
       "\u30B9\u30E9\u30A4\u30E0 (2)_120": -5894398737954521509
       "\u30B9\u30E9\u30A4\u30E0 (2)_121": -6457798903409006847
-      "\u30B9\u30E9\u30A4\u30E0 (2)_122": -2686084545658287520
-      "\u30B9\u30E9\u30A4\u30E0 (2)_123": -8868050780551732588
-      "\u30B9\u30E9\u30A4\u30E0 (2)_124": -6006103519270627218
-      "\u30B9\u30E9\u30A4\u30E0 (2)_125": 1228178363717662141
       "\u30B9\u30E9\u30A4\u30E0 (2)_126": -7918196940588058166
       "\u30B9\u30E9\u30A4\u30E0 (2)_127": -930242814520893524
       "\u30B9\u30E9\u30A4\u30E0 (2)_128": -4671340937010193600
       "\u30B9\u30E9\u30A4\u30E0 (2)_129": -1338733336926617380
-      "\u30B9\u30E9\u30A4\u30E0 (2)_13": -8818800395080922475
       "\u30B9\u30E9\u30A4\u30E0 (2)_130": -6250922277892444646
       "\u30B9\u30E9\u30A4\u30E0 (2)_131": 4004842113151717354
       "\u30B9\u30E9\u30A4\u30E0 (2)_132": 8175456021856495555
@@ -1180,20 +1199,15 @@ TextureImporter:
       "\u30B9\u30E9\u30A4\u30E0 (2)_134": 1100375292345243604
       "\u30B9\u30E9\u30A4\u30E0 (2)_135": 2080400790734533849
       "\u30B9\u30E9\u30A4\u30E0 (2)_136": 9010029158663780926
-      "\u30B9\u30E9\u30A4\u30E0 (2)_14": -512386673320276991
       "\u30B9\u30E9\u30A4\u30E0 (2)_15": -7496758525772815060
       "\u30B9\u30E9\u30A4\u30E0 (2)_16": -5810057480875891328
       "\u30B9\u30E9\u30A4\u30E0 (2)_17": 596096595653381973
-      "\u30B9\u30E9\u30A4\u30E0 (2)_18": -5340449066220780222
       "\u30B9\u30E9\u30A4\u30E0 (2)_19": -766005732265654840
       "\u30B9\u30E9\u30A4\u30E0 (2)_2": -1905237379425630711
       "\u30B9\u30E9\u30A4\u30E0 (2)_20": -3835097716314487528
       "\u30B9\u30E9\u30A4\u30E0 (2)_21": 1394846455124494255
       "\u30B9\u30E9\u30A4\u30E0 (2)_22": -7130803738158868970
-      "\u30B9\u30E9\u30A4\u30E0 (2)_23": 702498098622096006
-      "\u30B9\u30E9\u30A4\u30E0 (2)_24": 4178513646748738065
       "\u30B9\u30E9\u30A4\u30E0 (2)_25": -3855540494004937985
-      "\u30B9\u30E9\u30A4\u30E0 (2)_26": 4664386564767976723
       "\u30B9\u30E9\u30A4\u30E0 (2)_27": -1201537657169782724
       "\u30B9\u30E9\u30A4\u30E0 (2)_28": -2178141854463691603
       "\u30B9\u30E9\u30A4\u30E0 (2)_29": 5731641188553490922
@@ -1232,31 +1246,19 @@ TextureImporter:
       "\u30B9\u30E9\u30A4\u30E0 (2)_59": 4999826719861600068
       "\u30B9\u30E9\u30A4\u30E0 (2)_6": 4717965548264703849
       "\u30B9\u30E9\u30A4\u30E0 (2)_60": -7323319293155030521
-      "\u30B9\u30E9\u30A4\u30E0 (2)_61": -3569144999053879810
       "\u30B9\u30E9\u30A4\u30E0 (2)_62": -4072817496907465864
       "\u30B9\u30E9\u30A4\u30E0 (2)_63": 2258846541728558246
       "\u30B9\u30E9\u30A4\u30E0 (2)_64": 5392683736660568140
       "\u30B9\u30E9\u30A4\u30E0 (2)_65": 1749839856339428510
       "\u30B9\u30E9\u30A4\u30E0 (2)_66": 7470443971377341239
       "\u30B9\u30E9\u30A4\u30E0 (2)_67": 5750984720899705106
-      "\u30B9\u30E9\u30A4\u30E0 (2)_68": 7018931914748319690
-      "\u30B9\u30E9\u30A4\u30E0 (2)_69": 5456010530284260712
       "\u30B9\u30E9\u30A4\u30E0 (2)_7": -4948728962882982977
-      "\u30B9\u30E9\u30A4\u30E0 (2)_70": 7917339383568630190
-      "\u30B9\u30E9\u30A4\u30E0 (2)_71": 5437007103373958063
       "\u30B9\u30E9\u30A4\u30E0 (2)_72": -8879213585792378890
       "\u30B9\u30E9\u30A4\u30E0 (2)_73": 1133474423614943810
-      "\u30B9\u30E9\u30A4\u30E0 (2)_74": 3664238546477500837
-      "\u30B9\u30E9\u30A4\u30E0 (2)_75": -4559030307952001978
-      "\u30B9\u30E9\u30A4\u30E0 (2)_76": 4633736193158786380
-      "\u30B9\u30E9\u30A4\u30E0 (2)_77": -3562158101063110368
-      "\u30B9\u30E9\u30A4\u30E0 (2)_78": -7978718547331414013
-      "\u30B9\u30E9\u30A4\u30E0 (2)_79": -4825868669068063099
       "\u30B9\u30E9\u30A4\u30E0 (2)_8": 1633332510336611141
       "\u30B9\u30E9\u30A4\u30E0 (2)_80": 4415961625105026458
       "\u30B9\u30E9\u30A4\u30E0 (2)_81": 6057937857379353394
       "\u30B9\u30E9\u30A4\u30E0 (2)_82": 5852124255534374561
-      "\u30B9\u30E9\u30A4\u30E0 (2)_83": 8569948929447726469
       "\u30B9\u30E9\u30A4\u30E0 (2)_84": -3728525905696331341
       "\u30B9\u30E9\u30A4\u30E0 (2)_85": -1002859733511856045
       "\u30B9\u30E9\u30A4\u30E0 (2)_86": 4127836842234099868
@@ -1272,8 +1274,6 @@ TextureImporter:
       "\u30B9\u30E9\u30A4\u30E0 (2)_95": -538420438270256250
       "\u30B9\u30E9\u30A4\u30E0 (2)_96": 5156768991701987904
       "\u30B9\u30E9\u30A4\u30E0 (2)_97": 2835447179471466222
-      "\u30B9\u30E9\u30A4\u30E0 (2)_98": -9066351095749426076
-      "\u30B9\u30E9\u30A4\u30E0 (2)_99": 7801257926652017010
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

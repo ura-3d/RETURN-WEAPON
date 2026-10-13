@@ -5,7 +5,6 @@ public class MeleeEnemy : EnemyBase
     protected MeleeEnemyData m_meleeData;
 
     private float m_attackTimer;
-
     private bool m_isAttacking;
     private bool m_isRecovering;
 
@@ -14,17 +13,27 @@ public class MeleeEnemy : EnemyBase
 
     private float m_recoveryTimer;
 
+    [Header("アニメーション")]
+    private Animator m_animator;
+
     protected override void Awake()
     {
         base.Awake();
 
-        m_meleeData =
-            m_data as MeleeEnemyData;
+        m_meleeData = m_data as MeleeEnemyData;
+        m_animator = GetComponent<Animator>();
 
         if (m_meleeData == null)
         {
             Debug.LogError(
                 "MeleeEnemyにMeleeEnemyDataが設定されていません。"
+            );
+        }
+
+        if (m_animator == null)
+        {
+            Debug.LogWarning(
+                "MeleeEnemyにAnimatorが設定されていません。"
             );
         }
     }
@@ -37,141 +46,53 @@ public class MeleeEnemy : EnemyBase
         if (m_player == null)
             return;
 
-        // =================================
-        // 攻撃中
-        // =================================
         if (m_isAttacking)
         {
-            ChangeState(
-                EnemyAIState.Attack
-            );
-
+            ChangeState(EnemyAIState.Attack);
             StopMove();
-
+            UpdateAnimation();
             return;
         }
 
-        // =================================
-        // 攻撃後の硬直
-        // =================================
         if (m_isRecovering)
         {
-            ChangeState(
-                EnemyAIState.Recovery
-            );
-
+            ChangeState(EnemyAIState.Recovery);
             StopMove();
 
-            m_recoveryTimer -=
-                Time.deltaTime;
+            m_recoveryTimer -= Time.deltaTime;
 
             if (m_recoveryTimer <= 0f)
             {
                 m_isRecovering = false;
 
-                Debug.Log(
-                    "近接敵の硬直終了"
-                );
+                Debug.Log("近接敵の硬直終了");
             }
 
+            UpdateAnimation();
             return;
         }
 
-        // =================================
-        // 攻撃クールタイム
-        // =================================
         if (m_attackTimer > 0f)
         {
-            m_attackTimer -=
-                Time.deltaTime;
+            m_attackTimer -= Time.deltaTime;
         }
 
-        float distance =
-            GetPlayerDistance();
+        float distance = GetPlayerDistance();
 
-        // =================================
-        // 検知範囲外
-        // =================================
-        if (distance >
-            m_meleeData.detectDistance)
+        if (distance > m_meleeData.detectDistance)
         {
-            ChangeState(
-                EnemyAIState.Return
-            );
-
-            MoveToStartPosition(
-                m_meleeData.moveSpeed
-            );
-
-            // 初期位置に戻った
-            if (IsAtStartPosition())
-            {
-                StopMove();
-
-                ChangeState(
-                    EnemyAIState.Idle
-                );
-
-                Debug.Log(
-                    "近接敵が初期位置へ戻りました。"
-                );
-            }
-
+            ChangeState(EnemyAIState.Idle);
+            StopMove();
+            UpdateAnimation();
             return;
         }
 
-        // =================================
-        // Return中
-        // =================================
-        if (m_currentState ==
-            EnemyAIState.Return)
+        if (distance <= m_meleeData.attackDistance)
         {
-            // Playerが再び検知範囲に入った
-            if (distance <=
-                m_meleeData.detectDistance)
-            {
-                ChangeState(
-                    EnemyAIState.Chase
-                );
-
-                return;
-            }
-
-            MoveToStartPosition(
-                m_meleeData.moveSpeed
-            );
-
-            if (IsAtStartPosition())
-            {
-                StopMove();
-
-                ChangeState(
-                    EnemyAIState.Idle
-                );
-
-                Debug.Log(
-                    "近接敵が初期位置へ戻りました。"
-                );
-            }
-
-            return;
-        }
-
-        // =================================
-        // 攻撃距離
-        // =================================
-        if (distance <=
-            m_meleeData.attackDistance)
-        {
-            ChangeState(
-                EnemyAIState.Attack
-            );
-
+            ChangeState(EnemyAIState.Attack);
             StopMove();
 
-            Vector2 direction =
-                GetPlayerDirection();
-
+            Vector2 direction = GetPlayerDirection();
             LookAtPlayer(direction);
 
             if (m_attackTimer <= 0f)
@@ -179,50 +100,49 @@ public class MeleeEnemy : EnemyBase
                 Attack();
             }
 
+            UpdateAnimation();
             return;
         }
 
-        // =================================
-        // プレイヤーを追跡
-        // =================================
-        ChangeState(
-            EnemyAIState.Chase
-        );
-
+        ChangeState(EnemyAIState.Chase);
         MoveToPlayer();
+        UpdateAnimation();
     }
 
-    // =================================
-    // プレイヤーへ移動
-    // =================================
+    // プレイヤーに向かって移動
     private void MoveToPlayer()
     {
-        Vector2 direction =
-            GetPlayerDirection();
+        Vector2 direction = GetPlayerDirection();
 
-        m_rb.linearVelocity =
-            new Vector2(
-                direction.x *
-                m_meleeData.moveSpeed,
-                m_rb.linearVelocity.y
-            );
+        m_rb.linearVelocity = new Vector2(
+            direction.x * m_meleeData.moveSpeed,
+            m_rb.linearVelocity.y
+        );
 
         LookAtPlayer(direction);
     }
 
-    // =================================
+    // 移動を停止
+    private void StopMove()
+    {
+        if (m_rb == null)
+            return;
+
+        m_rb.linearVelocity = new Vector2(
+            0f,
+            m_rb.linearVelocity.y
+        );
+    }
+
     // 攻撃開始
-    // =================================
     private void Attack()
     {
-        Debug.Log(
-            "近接敵が攻撃！"
-        );
+        Debug.Log("近接敵が攻撃！");
 
         m_isAttacking = true;
+        m_attackTimer = m_meleeData.attackInterval;
 
-        m_attackTimer =
-            m_meleeData.attackInterval;
+        UpdateAnimation();
 
         Invoke(
             nameof(EndAttack),
@@ -230,27 +150,32 @@ public class MeleeEnemy : EnemyBase
         );
     }
 
-    // =================================
     // 攻撃終了
-    // =================================
     private void EndAttack()
     {
         m_isAttacking = false;
-
-        // 攻撃後硬直開始
         m_isRecovering = true;
+        m_recoveryTimer = m_recoveryTime;
 
-        m_recoveryTimer =
-            m_recoveryTime;
+        UpdateAnimation();
 
-        Debug.Log(
-            "近接敵が攻撃終了 → Recovery"
-        );
+        Debug.Log("近接敵が攻撃終了 → Recovery");
     }
 
-    // =================================
-    // 攻撃判定
-    // =================================
+    // アニメーション更新
+    private void UpdateAnimation()
+    {
+        if (m_animator == null || m_rb == null)
+            return;
+
+        bool isMoving =
+            Mathf.Abs(m_rb.linearVelocity.x) > 0.01f;
+
+        m_animator.SetBool("IsMoving", isMoving);
+        m_animator.SetBool("IsAttacking", m_isAttacking);
+    }
+
+    // プレイヤーに攻撃が命中したとき
     public void AttackHit(GameObject target)
     {
         if (target == null)
@@ -268,19 +193,14 @@ public class MeleeEnemy : EnemyBase
                 m_meleeData.attackDamage
             );
 
-            Debug.Log(
-                "近接攻撃がPlayerに命中！"
-            );
+            Debug.Log("近接攻撃がPlayerに命中！");
         }
     }
 
-    // =================================
-    // オブジェクト破棄時
-    // =================================
     private void OnDisable()
     {
-        CancelInvoke(
-            nameof(EndAttack)
-        );
+        CancelInvoke();
+        m_isAttacking = false;
+        m_isRecovering = false;
     }
 }
