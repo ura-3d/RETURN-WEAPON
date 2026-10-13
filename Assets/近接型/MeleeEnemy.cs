@@ -166,13 +166,31 @@ public class MeleeEnemy : EnemyBase
     private void UpdateAnimation()
     {
         if (m_animator == null || m_rb == null)
+        {
+            Debug.LogWarning(
+                "Animator または Rigidbody2D が見つかりません"
+            );
             return;
+        }
 
         bool isMoving =
             Mathf.Abs(m_rb.linearVelocity.x) > 0.01f;
 
         m_animator.SetBool("IsMoving", isMoving);
         m_animator.SetBool("IsAttacking", m_isAttacking);
+
+        Debug.Log(
+            "速度：" + m_rb.linearVelocity.x +
+            " / 設定値：" + isMoving +
+            " / Animator値：" +
+            m_animator.GetBool("IsMoving") +
+            " / 攻撃値：" +
+            m_animator.GetBool("IsAttacking") +
+            " / Controller：" +
+            (m_animator.runtimeAnimatorController != null
+                ? m_animator.runtimeAnimatorController.name
+                : "未設定")
+        );
     }
 
     // プレイヤーに攻撃が命中したとき
