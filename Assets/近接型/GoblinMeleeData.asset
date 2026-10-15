@@ -17,6 +17,6 @@ MonoBehaviour:
   moveSpeed: 2
   detectDistance: 5
   attackDistance: 1.2
-  attackDamage: 5
+  attackDamage: 10
   attackInterval: 1.5
   attackDuration: 0.3
