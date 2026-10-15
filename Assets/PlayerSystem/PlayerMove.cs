@@ -118,5 +118,7 @@ public class PlayerMove : MonoBehaviour
         {
             isGrounded = false;
         }
+
+        Debug.Log("GroundÇ©ÇÁó£ÇÍÇΩÅF" + collision.gameObject.name);
     }
 }
