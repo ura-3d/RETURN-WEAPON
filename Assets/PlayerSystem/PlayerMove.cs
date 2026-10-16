@@ -1,3 +1,5 @@
+
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
@@ -12,6 +14,10 @@ public class PlayerMove : MonoBehaviour
     private Animator animator;
 
     private bool isGrounded;
+
+    // 接触している地面を管理
+    private HashSet<GameObject> groundObjects =
+        new HashSet<GameObject>();
 
     private void Awake()
     {
@@ -30,8 +36,7 @@ public class PlayerMove : MonoBehaviour
     // 移動
     private void Move()
     {
-        float input =
-            Input.GetAxisRaw("Horizontal");
+        float input = Input.GetAxisRaw("Horizontal");
 
         rb.linearVelocity = new Vector2(
             input * moveSpeed,
@@ -42,14 +47,14 @@ public class PlayerMove : MonoBehaviour
     // ジャンプ
     private void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) &&
-            isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.linearVelocity = new Vector2(
                 rb.linearVelocity.x,
                 jumpPower
             );
 
+            groundObjects.Clear();
             isGrounded = false;
         }
     }
@@ -57,21 +62,65 @@ public class PlayerMove : MonoBehaviour
     // アニメーション更新
     private void UpdateAnimation()
     {
-        if (animator == null)
+        if (animator == null || rb == null)
             return;
 
         bool isRunning =
             Mathf.Abs(rb.linearVelocity.x) > 0.01f;
 
-        animator.SetBool(
-            "IsRunning",
-            isRunning
-        );
+        animator.SetBool("IsRunning", isRunning);
+        animator.SetBool("IsGrounded", isGrounded);
+    }
 
-        animator.SetBool(
-            "IsGrounded",
-            isGrounded
-        );
+    // 地面に接触したとき
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        UpdateGroundCollision(collision);
+    }
+
+    // 地面に接触し続けているとき
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        UpdateGroundCollision(collision);
+    }
+
+    // 地面から離れたとき
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (!collision.gameObject.CompareTag("Ground"))
+            return;
+
+        groundObjects.Remove(collision.gameObject);
+        isGrounded = groundObjects.Count > 0;
+    }
+
+    // 地面との接触状態を更新
+    private void UpdateGroundCollision(Collision2D collision)
+    {
+        if (!collision.gameObject.CompareTag("Ground"))
+            return;
+
+        bool touchingTop = false;
+
+        foreach (ContactPoint2D contact in collision.contacts)
+        {
+            if (contact.normal.y > 0.5f)
+            {
+                touchingTop = true;
+                break;
+            }
+        }
+
+        if (touchingTop && rb.linearVelocity.y <= 0.01f)
+        {
+            groundObjects.Add(collision.gameObject);
+        }
+        else if (rb.linearVelocity.y > 0.01f)
+        {
+            groundObjects.Remove(collision.gameObject);
+        }
+
+        isGrounded = groundObjects.Count > 0;
     }
 
     // マウス方向を見る
@@ -80,45 +129,18 @@ public class PlayerMove : MonoBehaviour
         if (Camera.main == null)
             return;
 
-        Vector3 mouseScreenPosition =
-            Input.mousePosition;
+        Vector3 mouseScreenPosition = Input.mousePosition;
 
         Vector3 mouseWorldPosition =
-            Camera.main.ScreenToWorldPoint(
-                mouseScreenPosition
-            );
+            Camera.main.ScreenToWorldPoint(mouseScreenPosition);
 
-        if (mouseWorldPosition.x >
-            transform.position.x)
+        if (mouseWorldPosition.x > transform.position.x)
         {
-            transform.localScale =
-                new Vector3(1f, 1f, 1f);
+            transform.localScale = new Vector3(1f, 1f, 1f);
         }
-        else if (mouseWorldPosition.x <
-                 transform.position.x)
+        else if (mouseWorldPosition.x < transform.position.x)
         {
-            transform.localScale =
-                new Vector3(-1f, 1f, 1f);
+            transform.localScale = new Vector3(-1f, 1f, 1f);
         }
-    }
-
-    private void OnCollisionEnter2D(
-        Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
-
-    private void OnCollisionExit2D(
-        Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
-
-        Debug.Log("Groundから離れた：" + collision.gameObject.name);
     }
 }

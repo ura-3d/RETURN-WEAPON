@@ -146,6 +146,7 @@ public class WeaponSpawner : MonoBehaviour
         // Throwアニメーション
         if (animator != null)
         {
+            animator.ResetTrigger("Throw");
             animator.SetTrigger("Throw");
         }
 
