@@ -11,7 +11,13 @@ public class MeleeEnemy : EnemyBase
     [Header("行動パターン")]
     [SerializeField] private float m_recoveryTime = 0.5f;
 
+    // 初期位置にこの距離まで近づいたら停止する
+    [SerializeField] private float m_returnStopDistance = 0.1f;
+
     private float m_recoveryTimer;
+
+    // 初期位置
+    private Vector2 m_startPosition;
 
     [Header("アニメーション")]
     private Animator m_animator;
@@ -22,6 +28,9 @@ public class MeleeEnemy : EnemyBase
 
         m_meleeData = m_data as MeleeEnemyData;
         m_animator = GetComponent<Animator>();
+
+        // 初期位置を記録
+        m_startPosition = transform.position;
 
         if (m_meleeData == null)
         {
@@ -79,10 +88,10 @@ public class MeleeEnemy : EnemyBase
 
         float distance = GetPlayerDistance();
 
+        // プレイヤーが離れたら初期位置へ戻る
         if (distance > m_meleeData.detectDistance)
         {
-            ChangeState(EnemyAIState.Idle);
-            StopMove();
+            ReturnToStart();
             UpdateAnimation();
             return;
         }
@@ -120,6 +129,32 @@ public class MeleeEnemy : EnemyBase
         );
 
         LookAtPlayer(direction);
+    }
+
+    // 初期位置に戻る
+    private void ReturnToStart()
+    {
+        float diffX = m_startPosition.x - transform.position.x;
+
+        // 初期位置に着いたら待機
+        if (Mathf.Abs(diffX) <= m_returnStopDistance)
+        {
+            ChangeState(EnemyAIState.Idle);
+            StopMove();
+            return;
+        }
+
+        // 専用のステートがあれば Chase を差し替える
+        ChangeState(EnemyAIState.Chase);
+
+        float dirX = Mathf.Sign(diffX);
+
+        m_rb.linearVelocity = new Vector2(
+            dirX * m_meleeData.moveSpeed,
+            m_rb.linearVelocity.y
+        );
+
+        LookAtPlayer(new Vector2(dirX, 0f));
     }
 
     // 移動を停止
