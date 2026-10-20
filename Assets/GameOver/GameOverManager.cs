@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// ゲームオーバー画面を管理する
+// ※Panelとは別の「常に表示されているオブジェクト」にアタッチすること
+//   （Panelと同じオブジェクトに付けると、非表示の間はスクリプトが動かない）
 public class GameOverManager : MonoBehaviour
 {
     [Header("ゲームオーバー画面")]
@@ -12,9 +15,16 @@ public class GameOverManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
+        // 最初はPanelを非表示にしておく
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "GameOverPanelが設定されていません。"
+            );
         }
     }
 
@@ -30,6 +40,7 @@ public class GameOverManager : MonoBehaviour
 
         if (gameOverPanel != null)
         {
+            // 非表示になっていたPanelを表示する
             gameOverPanel.SetActive(true);
         }
         else

@@ -18,12 +18,28 @@ public class Weapon : MonoBehaviour
     [Header("拾う設定")]
     [SerializeField] private float pickupDistance = 1.5f;
 
+    [Header("落下設定")]
+    // このY座標より下に落ちたら、地面に戻す
+    [SerializeField] private float fallLimitY = -10f;
+
+    // 地面に戻すとき、地面から少し上に置く（めり込み防止）
+    [SerializeField] private float landingHeightOffset = 0.5f;
+
+    // 戻し先の地面を探す距離（真下方向）
+    [SerializeField] private float groundSearchDistance = 50f;
+
     private Rigidbody2D rb;
     private Transform player;
 
     private bool isReturning;
     private bool isBouncing;
     private bool isOnGround;
+
+    // 投げられて飛行中かどうか
+    private bool isFlying;
+
+    // 投げた位置（戻し先が見つからないときの予備）
+    private Vector2 throwOrigin;
 
     private float bounceTimer;
 
@@ -53,7 +69,11 @@ public class Weapon : MonoBehaviour
         isReturning = false;
         isBouncing = false;
         isOnGround = false;
+        isFlying = true;
         bounceTimer = 0f;
+
+        // 投げた位置を記録
+        throwOrigin = transform.position;
 
         hitEnemies.Clear();
 
@@ -77,6 +97,10 @@ public class Weapon : MonoBehaviour
 
         // 飛行方向に武器を向ける
         UpdateWeaponRotation();
+
+        // 穴に落ちたら地面に戻す
+        if (CheckFall())
+            return;
 
         if (isOnGround)
         {
@@ -136,6 +160,91 @@ public class Weapon : MonoBehaviour
                 ReturnToPlayer();
             }
         }
+    }
+
+    // 穴に落ちたかチェックして、落ちていたら地面に戻す
+    // 戻した場合は true を返す
+    private bool CheckFall()
+    {
+        // 飛行中で、まだ地面に落ちておらず、戻っている最中でもないときだけ判定
+        if (!isFlying || isOnGround || isReturning)
+            return false;
+
+        if (transform.position.y >= fallLimitY)
+            return false;
+
+        LandOnGroundNearPlayer();
+        return true;
+    }
+
+    // Playerの近くの地面に武器を置く
+    private void LandOnGroundNearPlayer()
+    {
+        Vector2 landingPosition;
+
+        // まずPlayerの真下の地面を探す
+        if (!TryFindGroundBelow(player.position, out landingPosition))
+        {
+            // 見つからなければ、投げた位置の真下を探す
+            if (!TryFindGroundBelow(throwOrigin, out landingPosition))
+            {
+                // それでも無ければ、投げた位置に戻す
+                landingPosition = throwOrigin;
+            }
+        }
+
+        Debug.Log(
+            "武器が穴に落ちたので地面に戻します"
+        );
+
+        transform.position = new Vector3(
+            landingPosition.x,
+            landingPosition.y + landingHeightOffset,
+            transform.position.z
+        );
+
+        // 床に落ちたときと同じ状態にする（Eキーで拾える）
+        isOnGround = true;
+        isFlying = false;
+        isReturning = false;
+        isBouncing = false;
+
+        rb.linearVelocity =
+            Vector2.zero;
+
+        rb.gravityScale = 0f;
+        rb.rotation = 0f;
+
+        // Enemyとの衝突を無効にする
+        SetEnemyCollision(false);
+    }
+
+    // 指定位置の真下にある Ground タグの地面を探す
+    private bool TryFindGroundBelow(
+        Vector2 origin,
+        out Vector2 groundPoint)
+    {
+        RaycastHit2D[] hits =
+            Physics2D.RaycastAll(
+                origin,
+                Vector2.down,
+                groundSearchDistance
+            );
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider == null)
+                continue;
+
+            if (hit.collider.CompareTag("Ground"))
+            {
+                groundPoint = hit.point;
+                return true;
+            }
+        }
+
+        groundPoint = Vector2.zero;
+        return false;
     }
 
     // 飛行方向に武器を向ける
@@ -215,6 +324,7 @@ public class Weapon : MonoBehaviour
             );
 
             isOnGround = true;
+            isFlying = false;
             isReturning = false;
             isBouncing = false;
 
@@ -371,6 +481,7 @@ public class Weapon : MonoBehaviour
         isReturning = false;
         isBouncing = false;
         isOnGround = false;
+        isFlying = false;
         bounceTimer = 0f;
 
         rb.linearVelocity =
@@ -384,5 +495,15 @@ public class Weapon : MonoBehaviour
         SetEnemyCollision(true);
 
         hitEnemies.Clear();
+    }
+
+    // Sceneビューで落下ラインを赤線で表示（このオブジェクトを選択中のみ）
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(
+            new Vector3(-1000f, fallLimitY, 0f),
+            new Vector3(1000f, fallLimitY, 0f)
+        );
     }
 }

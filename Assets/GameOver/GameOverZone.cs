@@ -1,13 +1,14 @@
 using UnityEngine;
 
-// 落下したらゲームオーバーにするスクリプト
+// 落下したらGameOverManagerにゲームオーバーを伝えるスクリプト
 // ・判定エリア(Trigger)に触れたとき
 // ・Playerの高さ(Y座標)が一定より下になったとき
 // のどちらかでゲームオーバーになる
 public class GameOverZone : MonoBehaviour
 {
-    [Header("ゲームオーバーUI")]
-    [SerializeField] private GameObject m_gameOverUI;
+    [Header("ゲームオーバー管理")]
+    // 空のままなら、シーン内のGameOverManagerを自動で探す
+    [SerializeField] private GameOverManager m_gameOverManager;
 
     [Header("落下判定")]
     // このY座標より下に落ちたらゲームオーバー
@@ -18,14 +19,14 @@ public class GameOverZone : MonoBehaviour
 
     private void Start()
     {
-        // 最初はゲームオーバー表示を隠しておく
-        if (m_gameOverUI != null)
+        if (m_gameOverManager == null)
         {
-            m_gameOverUI.SetActive(false);
+            m_gameOverManager = FindFirstObjectByType<GameOverManager>();
         }
-        else
+
+        if (m_gameOverManager == null)
         {
-            Debug.LogWarning("GameOverZoneにゲームオーバーUIが設定されていません。");
+            Debug.LogWarning("シーン内にGameOverManagerが見つかりません。");
         }
 
         // Playerを探しておく
@@ -52,7 +53,7 @@ public class GameOverZone : MonoBehaviour
         // 一定の高さより下に落ちたらゲームオーバー
         if (m_player.position.y < m_fallLimitY)
         {
-            GameOver();
+            TriggerGameOver();
         }
     }
 
@@ -69,22 +70,19 @@ public class GameOverZone : MonoBehaviour
         if (!isPlayer)
             return;
 
-        GameOver();
+        TriggerGameOver();
     }
 
-    private void GameOver()
+    private void TriggerGameOver()
     {
         m_isGameOver = true;
 
-        Debug.Log("ゲームオーバー（落下）");
+        Debug.Log("落下によるゲームオーバー");
 
-        if (m_gameOverUI != null)
+        if (m_gameOverManager != null)
         {
-            m_gameOverUI.SetActive(true);
+            m_gameOverManager.GameOver();
         }
-
-        // ゲームを一時停止
-        Time.timeScale = 0f;
     }
 
     // Sceneビューで落下ラインを赤線で表示（このオブジェクトを選択中のみ）
@@ -95,11 +93,5 @@ public class GameOverZone : MonoBehaviour
             new Vector3(-1000f, m_fallLimitY, 0f),
             new Vector3(1000f, m_fallLimitY, 0f)
         );
-    }
-
-    private void OnDestroy()
-    {
-        // シーン再読み込み時に止まったままにならないよう戻しておく
-        Time.timeScale = 1f;
     }
 }
