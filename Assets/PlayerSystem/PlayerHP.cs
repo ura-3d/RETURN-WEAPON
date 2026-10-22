@@ -1,10 +1,15 @@
+
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class PlayerHP : MonoBehaviour
 {
     [Header("HP")]
     [SerializeField] private int maxHP = 100;
+
+    [Header("HPバー")]
+    [SerializeField] private Slider hpSlider;
 
     [Header("ダメージ無敵時間")]
     [SerializeField] private float damageInvincibleTime = 0.5f;
@@ -28,19 +33,28 @@ public class PlayerHP : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer =
-            GetComponent<SpriteRenderer>();
-
-        playerMove =
-            GetComponent<PlayerMove>();
-
-        weaponSpawner =
-            GetComponent<WeaponSpawner>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        playerMove = GetComponent<PlayerMove>();
+        weaponSpawner = GetComponent<WeaponSpawner>();
     }
 
     private void Start()
     {
         currentHP = maxHP;
+
+        // HPバーを初期化
+        if (hpSlider != null)
+        {
+            hpSlider.minValue = 0;
+            hpSlider.maxValue = maxHP;
+            hpSlider.value = currentHP;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "PlayerHPにHPバーが設定されていません。"
+            );
+        }
 
         Debug.Log(
             "Player HP：" +
@@ -70,10 +84,7 @@ public class PlayerHP : MonoBehaviour
         // 無敵時間中
         if (invincibleTimer > 0f)
         {
-            Debug.Log(
-                "Playerは無敵時間中です"
-            );
-
+            Debug.Log("Playerは無敵時間中です");
             return;
         }
 
@@ -84,9 +95,11 @@ public class PlayerHP : MonoBehaviour
             currentHP = 0;
         }
 
+        // HPバーを更新
+        UpdateHPBar();
+
         // 無敵時間開始
-        invincibleTimer =
-            damageInvincibleTime;
+        invincibleTimer = damageInvincibleTime;
 
         Debug.Log(
             "Playerが " +
@@ -103,15 +116,21 @@ public class PlayerHP : MonoBehaviour
             StopCoroutine(blinkCoroutine);
         }
 
-        blinkCoroutine =
-            StartCoroutine(
-                DamageBlink()
-            );
+        blinkCoroutine = StartCoroutine(DamageBlink());
 
         // HPが0になったら死亡
         if (currentHP <= 0)
         {
             Die();
+        }
+    }
+
+    // HPバー更新
+    private void UpdateHPBar()
+    {
+        if (hpSlider != null)
+        {
+            hpSlider.value = currentHP;
         }
     }
 
@@ -127,22 +146,16 @@ public class PlayerHP : MonoBehaviour
         {
             spriteRenderer.enabled = false;
 
-            yield return new WaitForSeconds(
-                blinkInterval
-            );
+            yield return new WaitForSeconds(blinkInterval);
 
             spriteRenderer.enabled = true;
 
-            yield return new WaitForSeconds(
-                blinkInterval
-            );
+            yield return new WaitForSeconds(blinkInterval);
 
-            timer +=
-                blinkInterval * 2f;
+            timer += blinkInterval * 2f;
         }
 
         spriteRenderer.enabled = true;
-
         blinkCoroutine = null;
     }
 
@@ -154,9 +167,7 @@ public class PlayerHP : MonoBehaviour
 
         isDead = true;
 
-        Debug.Log(
-            "Playerが倒れた！"
-        );
+        Debug.Log("Playerが倒れた！");
 
         // プレイヤー操作停止
         if (playerMove != null)
@@ -171,14 +182,11 @@ public class PlayerHP : MonoBehaviour
         }
 
         // Rigidbody停止
-        Rigidbody2D rb =
-            GetComponent<Rigidbody2D>();
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
 
         if (rb != null)
         {
-            rb.linearVelocity =
-                Vector2.zero;
-
+            rb.linearVelocity = Vector2.zero;
             rb.simulated = false;
         }
 

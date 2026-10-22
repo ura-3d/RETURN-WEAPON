@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +14,9 @@ public class PlayerMove : MonoBehaviour
 
     private bool isGrounded;
 
+    // 現在右向きか（他のスクリプトから参照できる）
+    public bool IsFacingRight { get; private set; } = true;
+
     // 接触している地面を管理
     private HashSet<GameObject> groundObjects =
         new HashSet<GameObject>();
@@ -23,13 +25,16 @@ public class PlayerMove : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        // 開始時の向きを、現在のスケールから決める
+        IsFacingRight = transform.localScale.x >= 0f;
     }
 
     private void Update()
     {
         Move();
         Jump();
-        LookAtMouse();
+        UpdateFacing();
         UpdateAnimation();
     }
 
@@ -57,6 +62,28 @@ public class PlayerMove : MonoBehaviour
             groundObjects.Clear();
             isGrounded = false;
         }
+    }
+
+    // キー入力で向きを変える（A/D・矢印キー）
+    private void UpdateFacing()
+    {
+        float input = Input.GetAxisRaw("Horizontal");
+
+        // 入力があったときだけ向きを更新する（入力がなければ今の向きを保つ）
+        if (input > 0f)
+        {
+            IsFacingRight = true;
+        }
+        else if (input < 0f)
+        {
+            IsFacingRight = false;
+        }
+
+        transform.localScale = new Vector3(
+            IsFacingRight ? 1f : -1f,
+            1f,
+            1f
+        );
     }
 
     // アニメーション更新
@@ -121,26 +148,5 @@ public class PlayerMove : MonoBehaviour
         }
 
         isGrounded = groundObjects.Count > 0;
-    }
-
-    // マウス方向を見る
-    private void LookAtMouse()
-    {
-        if (Camera.main == null)
-            return;
-
-        Vector3 mouseScreenPosition = Input.mousePosition;
-
-        Vector3 mouseWorldPosition =
-            Camera.main.ScreenToWorldPoint(mouseScreenPosition);
-
-        if (mouseWorldPosition.x > transform.position.x)
-        {
-            transform.localScale = new Vector3(1f, 1f, 1f);
-        }
-        else if (mouseWorldPosition.x < transform.position.x)
-        {
-            transform.localScale = new Vector3(-1f, 1f, 1f);
-        }
     }
 }

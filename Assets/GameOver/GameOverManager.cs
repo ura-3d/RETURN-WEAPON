@@ -68,6 +68,6 @@ public class GameOverManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        SceneManager.LoadScene("Title");
+        SceneManager.LoadScene("TitleScene");
     }
 }

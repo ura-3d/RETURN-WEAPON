@@ -1,33 +1,20 @@
+
 using UnityEngine;
 
-// ゴールオブジェクトにアタッチする
-// Playerが触れたらゲームクリア表示を出して、ゲームを止める
+// ゴールに触れたらゲームクリア処理を呼び出す
 public class GoalTrigger : MonoBehaviour
 {
-    [Header("ゲームクリアUI")]
-    [SerializeField] private GameObject m_gameClearUI;
+    [Header("タイマー管理")]
+    [SerializeField] private TimerManager timerManager;
 
     private bool m_isCleared;
-
-    private void Start()
-    {
-        // 最初はクリア表示を隠しておく
-        if (m_gameClearUI != null)
-        {
-            m_gameClearUI.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("GoalTriggerにゲームクリアUIが設定されていません。");
-        }
-    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (m_isCleared)
             return;
 
-        // Player本体、またはその子オブジェクトのコライダーか判定
+        // Player本体、またはその子オブジェクトか判定
         bool isPlayer =
             other.CompareTag("Player") ||
             other.GetComponentInParent<PlayerHP>() != null;
@@ -35,27 +22,19 @@ public class GoalTrigger : MonoBehaviour
         if (!isPlayer)
             return;
 
-        GameClear();
-    }
-
-    private void GameClear()
-    {
         m_isCleared = true;
 
-        Debug.Log("ゲームクリア！");
+        Debug.Log("ゴールに到達しました");
 
-        if (m_gameClearUI != null)
+        if (timerManager != null)
         {
-            m_gameClearUI.SetActive(true);
+            timerManager.ReachGoal();
         }
-
-        // ゲームを一時停止
-        Time.timeScale = 0f;
-    }
-
-    private void OnDestroy()
-    {
-        // シーン再読み込み時に止まったままにならないよう戻しておく
-        Time.timeScale = 1f;
+        else
+        {
+            Debug.LogError(
+                "GoalTriggerにTimerManagerが設定されていません。"
+            );
+        }
     }
 }

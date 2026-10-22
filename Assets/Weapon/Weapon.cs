@@ -6,8 +6,17 @@ public class Weapon : MonoBehaviour
     [Header("飛行設定")]
     [SerializeField] private float throwSpeed = 10f;
 
+    // 投げているときの重力の強さ
+    [SerializeField] private float throwGravityScale = 3f;
+
+    // 狙った位置へ投げるときの、最短の飛行時間（近すぎる位置で速度が極端になるのを防ぐ）
+    [SerializeField] private float minFlightTime = 0.15f;
+
     [Header("戻る設定")]
     [SerializeField] private float returnSpeed = 12f;
+
+    // 戻り始めてからこの秒数が過ぎたら、引っかかっていても強制的に手元へ戻す
+    [SerializeField] private float returnTimeout = 3f;
 
     [Header("攻撃設定")]
     [SerializeField] private int damage = 10;
@@ -28,6 +37,12 @@ public class Weapon : MonoBehaviour
     // 戻し先の地面を探す距離（真下方向）
     [SerializeField] private float groundSearchDistance = 50f;
 
+    // 地面に置かれた武器が空中で止まっていないかを調べるときの余裕
+    [SerializeField] private float groundCheckMargin = 0.2f;
+
+    // 戻っている間は、地面との衝突を無視する時間（戻り切るまで十分長く）
+    private const float ReturnIgnoreGroundTime = 60f;
+
     private Rigidbody2D rb;
     private Transform player;
 
@@ -40,6 +55,17 @@ public class Weapon : MonoBehaviour
 
     // 投げた位置（戻し先が見つからないときの予備）
     private Vector2 throwOrigin;
+
+    // 狙った位置へ飛んでいる最中か（この間は地面との衝突を無視する）
+    private bool isTargetFlight;
+    private float targetFlightTimer;
+
+    // 戻っている時間（引っかかって戻れなくなったときの保険）
+    private float returnTimer;
+
+    // 衝突を無視している地面のコライダー
+    private List<Collider2D> ignoredGroundColliders =
+        new List<Collider2D>();
 
     private float bounceTimer;
 
@@ -78,7 +104,7 @@ public class Weapon : MonoBehaviour
         hitEnemies.Clear();
 
         rb.simulated = true;
-        rb.gravityScale = 3f;
+        rb.gravityScale = throwGravityScale;
 
         // Enemyとの衝突を有効にする
         SetEnemyCollision(true);
@@ -90,6 +116,62 @@ public class Weapon : MonoBehaviour
             throwDirection * throwSpeed;
     }
 
+    // 狙った位置（レティクルの位置）に届くように投げる
+    public void ThrowToTarget(
+        Vector2 targetPosition,
+        Transform playerTransform)
+    {
+        if (rb == null)
+            return;
+
+        player = playerTransform;
+
+        isReturning = false;
+        isBouncing = false;
+        isOnGround = false;
+        isFlying = true;
+        bounceTimer = 0f;
+
+        // 投げた位置を記録
+        throwOrigin = transform.position;
+
+        hitEnemies.Clear();
+
+        rb.simulated = true;
+        rb.gravityScale = throwGravityScale;
+
+        // Enemyとの衝突を有効にする
+        SetEnemyCollision(true);
+
+        Vector2 startPosition = transform.position;
+        Vector2 toTarget = targetPosition - startPosition;
+        float distance = toTarget.magnitude;
+
+        // 飛行時間：距離 ÷ 投げる速度（短すぎる場合は最小時間にする）
+        float flightTime =
+            Mathf.Max(minFlightTime, distance / throwSpeed);
+
+        // 重力による加速度（下向きなので負の値）
+        float gravityY =
+            Physics2D.gravity.y * throwGravityScale;
+
+        // 飛行時間ちょうどで目標の位置を通るような初速を求める
+        float velocityX = toTarget.x / flightTime;
+        float velocityY =
+            toTarget.y / flightTime
+            - 0.5f * gravityY * flightTime;
+
+        rb.linearVelocity =
+            new Vector2(velocityX, velocityY);
+
+        // 狙った位置に着くまでは、地面に当たっても着地扱いにしない
+        BeginIgnoreGround(flightTime);
+
+        Debug.Log(
+            "狙った位置へ投げます。飛行時間：" + flightTime
+        );
+    }
+
     private void Update()
     {
         if (player == null)
@@ -98,12 +180,30 @@ public class Weapon : MonoBehaviour
         // 飛行方向に武器を向ける
         UpdateWeaponRotation();
 
+        // 狙った位置に着いたら、地面との衝突を元に戻す
+        if (isTargetFlight)
+        {
+            targetFlightTimer -= Time.deltaTime;
+
+            if (targetFlightTimer <= 0f)
+            {
+                RestoreGroundCollision();
+            }
+        }
+
         // 穴に落ちたら地面に戻す
         if (CheckFall())
             return;
 
         if (isOnGround)
         {
+            // 空中で止まっていたら落下させる
+            if (!HasGroundBelow())
+            {
+                DropFromAir();
+                return;
+            }
+
             rb.linearVelocity =
                 Vector2.zero;
 
@@ -135,6 +235,9 @@ public class Weapon : MonoBehaviour
                 isBouncing = false;
                 isReturning = true;
                 rb.gravityScale = 0f;
+
+                // 戻っている間は地面に引っかからないようにする
+                BeginIgnoreGround(ReturnIgnoreGroundTime);
             }
 
             return;
@@ -143,6 +246,19 @@ public class Weapon : MonoBehaviour
         // Playerへ戻る
         if (isReturning)
         {
+            returnTimer += Time.deltaTime;
+
+            // 地形などに引っかかって戻れないときは、強制的に手元へ戻す
+            if (returnTimer >= returnTimeout)
+            {
+                Debug.Log(
+                    "武器が戻れなかったため、強制的に手元へ戻します"
+                );
+
+                ReturnToPlayer();
+                return;
+            }
+
             Vector2 direction =
                 (
                     player.position -
@@ -247,6 +363,175 @@ public class Weapon : MonoBehaviour
         return false;
     }
 
+    // 地面に触れ続けているとき
+    // （側面を滑り落ちて床に着いたときなど、Enterだけでは着地を拾えないため）
+    private void OnCollisionStay2D(
+        Collision2D collision)
+    {
+        if (!isFlying || isOnGround)
+            return;
+
+        if (!collision.gameObject.CompareTag("Ground"))
+            return;
+
+        TryLandOnGround(collision);
+    }
+
+    // 地面に着地する（上向きの面に触れたときだけ）
+    private void TryLandOnGround(Collision2D collision)
+    {
+        if (isOnGround)
+            return;
+
+        bool touchingFloor = false;
+
+        foreach (ContactPoint2D contact in collision.contacts)
+        {
+            if (contact.normal.y > 0.5f)
+            {
+                touchingFloor = true;
+                break;
+            }
+        }
+
+        // 側面や下面に当たっただけのときは着地扱いにしない
+        // （空中で止まってしまうのを防ぐ）
+        if (!touchingFloor)
+            return;
+
+        Debug.Log(
+            "武器が床に落ちました"
+        );
+
+        isOnGround = true;
+        isFlying = false;
+        isReturning = false;
+        isBouncing = false;
+
+        rb.linearVelocity =
+            Vector2.zero;
+
+        rb.gravityScale = 0f;
+
+        // Enemyとの衝突を無効にする
+        SetEnemyCollision(false);
+    }
+
+    // 真下の近くに地面があるか
+    private bool HasGroundBelow()
+    {
+        Collider2D weaponCollider =
+            GetComponent<Collider2D>();
+
+        if (weaponCollider == null)
+            return true;
+
+        Bounds bounds = weaponCollider.bounds;
+
+        float distance =
+            bounds.extents.y + groundCheckMargin;
+
+        RaycastHit2D[] hits =
+            Physics2D.RaycastAll(
+                bounds.center,
+                Vector2.down,
+                distance
+            );
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider == null)
+                continue;
+
+            if (hit.collider == weaponCollider)
+                continue;
+
+            if (hit.collider.CompareTag("Ground"))
+                return true;
+        }
+
+        return false;
+    }
+
+    // 空中で止まっていた武器を落下させる
+    private void DropFromAir()
+    {
+        Debug.Log(
+            "武器が空中で止まっていたので、落下させます"
+        );
+
+        isOnGround = false;
+        isFlying = true;
+        isReturning = false;
+        isBouncing = false;
+
+        rb.gravityScale = throwGravityScale;
+    }
+
+    // 指定した時間のあいだ、Groundタグの地面との衝突を無視する
+    private void BeginIgnoreGround(float duration)
+    {
+        // 念のため、前回の設定を戻しておく
+        RestoreGroundCollision();
+
+        Collider2D weaponCollider =
+            GetComponent<Collider2D>();
+
+        if (weaponCollider == null)
+            return;
+
+        GameObject[] grounds =
+            GameObject.FindGameObjectsWithTag("Ground");
+
+        foreach (GameObject ground in grounds)
+        {
+            Collider2D[] colliders =
+                ground.GetComponentsInChildren<Collider2D>();
+
+            foreach (Collider2D groundCollider in colliders)
+            {
+                if (groundCollider == null)
+                    continue;
+
+                Physics2D.IgnoreCollision(
+                    weaponCollider,
+                    groundCollider,
+                    true
+                );
+
+                ignoredGroundColliders.Add(groundCollider);
+            }
+        }
+
+        isTargetFlight = true;
+        targetFlightTimer = duration;
+    }
+
+    // 無視していた地面との衝突を元に戻す
+    private void RestoreGroundCollision()
+    {
+        Collider2D weaponCollider =
+            GetComponent<Collider2D>();
+
+        if (weaponCollider != null)
+        {
+            foreach (Collider2D groundCollider in ignoredGroundColliders)
+            {
+                if (groundCollider == null)
+                    continue;
+
+                Physics2D.IgnoreCollision(
+                    weaponCollider,
+                    groundCollider,
+                    false
+                );
+            }
+        }
+
+        ignoredGroundColliders.Clear();
+        isTargetFlight = false;
+    }
+
     // 飛行方向に武器を向ける
     private void UpdateWeaponRotation()
     {
@@ -308,6 +593,9 @@ public class Weapon : MonoBehaviour
                 );
             }
 
+            // 戻っている間は地面に引っかからないよう、地面との衝突を無視する
+            BeginIgnoreGround(ReturnIgnoreGroundTime);
+
             isReturning = true;
             isBouncing = false;
 
@@ -319,29 +607,15 @@ public class Weapon : MonoBehaviour
         // 地面に落ちた
         if (collision.gameObject.CompareTag("Ground"))
         {
-            Debug.Log(
-                "武器が床に落ちました"
-            );
-
-            isOnGround = true;
-            isFlying = false;
-            isReturning = false;
-            isBouncing = false;
-
-            rb.linearVelocity =
-                Vector2.zero;
-
-            rb.gravityScale = 0f;
-
-            // Enemyとの衝突を無効にする
-            SetEnemyCollision(false);
-
+            TryLandOnGround(collision);
             return;
         }
 
         // 壁に当たった
         if (collision.gameObject.CompareTag("wall"))
         {
+            RestoreGroundCollision();
+
             Debug.Log(
                 "壁に当たった！反射します"
             );
@@ -478,6 +752,10 @@ public class Weapon : MonoBehaviour
     // 武器の状態をリセット
     private void ResetWeaponState()
     {
+        RestoreGroundCollision();
+
+        returnTimer = 0f;
+
         isReturning = false;
         isBouncing = false;
         isOnGround = false;

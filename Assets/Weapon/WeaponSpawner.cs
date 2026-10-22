@@ -8,18 +8,38 @@ public class WeaponSpawner : MonoBehaviour
     [Header("武器を持つ位置")]
     [SerializeField] private Transform weaponSpawnPoint;
 
+    [Header("レティクル")]
+    // 左クリックを押している間、マウスの位置に表示する照準（シーン上に置いたオブジェクト）
+    [SerializeField] private GameObject reticle;
+
+    [Header("投げる方向")]
+    // オンにすると、Playerの向きと反対側にマウスがあっても、向いている側へ照準を寄せる
+    // （上下の位置はマウスのまま、左右だけ向いている側に揃える）
+    // オフにすると、マウスの位置へ自由に狙える
+    [SerializeField] private bool restrictToFacing = true;
+
     private GameObject currentWeapon;
 
     private Animator animator;
+    private PlayerMove playerMove;
+
+    // 左クリックを押して狙っている最中か
+    private bool isAiming;
 
     private void Awake()
     {
         animator =
             GetComponent<Animator>();
+
+        playerMove =
+            GetComponent<PlayerMove>();
     }
 
     private void Start()
     {
+        // 最初はレティクルを隠しておく
+        SetReticleVisible(false);
+
         if (weaponSpawnPoint != null &&
             weaponPrefab != null)
         {
@@ -29,12 +49,112 @@ public class WeaponSpawner : MonoBehaviour
 
     private void Update()
     {
+        UpdateAiming();
+    }
+
+    // 狙い：押している間レティクルを表示し、離したらその位置へ投げる
+    private void UpdateAiming()
+    {
+        // 武器を持っていないときは狙えない
+        if (!CanThrowWeapon())
+        {
+            isAiming = false;
+            SetReticleVisible(false);
+            return;
+        }
+
+        // 左クリックを押したら狙い始める
         if (Input.GetMouseButtonDown(0))
         {
-            if (CanThrowWeapon())
+            isAiming = true;
+        }
+
+        if (!isAiming)
+            return;
+
+        Vector2 aimPosition;
+
+        if (!TryGetAimPosition(out aimPosition))
+            return;
+
+        // レティクルを照準位置に表示
+        SetReticlePosition(aimPosition);
+
+        // 左クリックを離したら、レティクルの位置へ投げる
+        if (Input.GetMouseButtonUp(0))
+        {
+            isAiming = false;
+            SetReticleVisible(false);
+
+            ThrowWeapon(aimPosition);
+        }
+    }
+
+    // 照準の位置（ワールド座標）を求める
+    private bool TryGetAimPosition(out Vector2 aimPosition)
+    {
+        aimPosition = Vector2.zero;
+
+        if (Camera.main == null)
+        {
+            Debug.LogWarning(
+                "MainCameraが見つかりません。"
+            );
+
+            return false;
+        }
+
+        Vector3 mouseWorldPosition =
+            Camera.main.ScreenToWorldPoint(
+                Input.mousePosition
+            );
+
+        aimPosition = mouseWorldPosition;
+
+        // Playerの向いている側に照準を寄せる
+        if (restrictToFacing && playerMove != null)
+        {
+            float facingSign =
+                playerMove.IsFacingRight ? 1f : -1f;
+
+            float diffX =
+                aimPosition.x - transform.position.x;
+
+            // マウスが向きと反対側なら、Playerを中心に左右だけ反転する
+            if (diffX * facingSign < 0f)
             {
-                ThrowWeapon();
+                aimPosition.x =
+                    transform.position.x - diffX;
             }
+        }
+
+        return true;
+    }
+
+    // レティクルを指定位置に表示
+    private void SetReticlePosition(Vector2 position)
+    {
+        if (reticle == null)
+            return;
+
+        if (!reticle.activeSelf)
+        {
+            reticle.SetActive(true);
+        }
+
+        reticle.transform.position =
+            new Vector3(position.x, position.y, 0f);
+    }
+
+    // レティクルの表示・非表示
+    private void SetReticleVisible(bool visible)
+    {
+        if (reticle == null)
+            return;
+
+        if (reticle.activeSelf != visible)
+        {
+            reticle.SetActive(visible);
         }
     }
 
@@ -82,8 +202,8 @@ public class WeaponSpawner : MonoBehaviour
         EquipWeapon(currentWeapon);
     }
 
-    // 武器を投げる
-    private void ThrowWeapon()
+    // 武器を投げる（aimPosition：狙う位置）
+    private void ThrowWeapon(Vector2 aimPosition)
     {
         if (currentWeapon == null)
             return;
@@ -100,32 +220,12 @@ public class WeaponSpawner : MonoBehaviour
             return;
         }
 
-        if (Camera.main == null)
-        {
-            Debug.LogWarning(
-                "MainCameraが見つかりません。"
-            );
+        // 狙う位置が武器に近すぎるときは投げない
+        Vector2 toTarget =
+            aimPosition -
+            (Vector2)currentWeapon.transform.position;
 
-            return;
-        }
-
-        Vector3 mouseScreenPosition =
-            Input.mousePosition;
-
-        Vector3 mouseWorldPosition =
-            Camera.main.ScreenToWorldPoint(
-                mouseScreenPosition
-            );
-
-        mouseWorldPosition.z = 0f;
-
-        Vector2 direction =
-            (
-                mouseWorldPosition -
-                transform.position
-            ).normalized;
-
-        if (direction.sqrMagnitude <= 0.001f)
+        if (toTarget.sqrMagnitude <= 0.01f)
             return;
 
         GameObject thrownWeapon =
@@ -150,13 +250,14 @@ public class WeaponSpawner : MonoBehaviour
             animator.SetTrigger("Throw");
         }
 
-        weapon.Throw(
-            direction,
+        // レティクルの位置に届くように投げる
+        weapon.ThrowToTarget(
+            aimPosition,
             transform
         );
 
         Debug.Log(
-            "マウス方向へ武器を投げました"
+            "レティクルの位置へ武器を投げました"
         );
     }
 

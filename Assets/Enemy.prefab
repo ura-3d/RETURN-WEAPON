@@ -27,8 +27,8 @@ Transform:
   m_GameObject: {fileID: 448524135550813290}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.27, y: -0.298241, z: 0}
-  m_LocalScale: {x: 1, y: 0.36722854, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8276527631658120721}
@@ -279,6 +279,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MeleeEnemy
   m_data: {fileID: 11400000, guid: 2a2551df8c400774d8ed7066898d85cd, type: 2}
   m_recoveryTime: 0.5
+  m_returnStopDistance: 0.1
 --- !u!95 &5373057061548722833
 Animator:
   serializedVersion: 7

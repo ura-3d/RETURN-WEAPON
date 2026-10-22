@@ -68,6 +68,14 @@ public class GameClearManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        SceneManager.LoadScene("Title");
+        SceneManager.LoadScene("TitleScene");
+    }
+
+    // ステージ選択へ
+    public void GoToSelectScene()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene("SelectScene");
     }
 }
