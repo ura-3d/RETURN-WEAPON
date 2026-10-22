@@ -4331,6 +4331,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ae31da0e8584aba44b4bd4eb794a9cf8, type: 3}
+--- !u!114 &1171752483 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1931595185119037457, guid: 02c523903f48e1644a0d6c598f21e66c, type: 3}
+  m_PrefabInstance: {fileID: 1763296945}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe734ca2c7351004d823e9d942207b04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TimerManager
 --- !u!1001 &1191070151
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5013,7 +5024,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4771037330077601852, guid: f15a53236adb1c24f9428693544b69ab, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4919535592017624078, guid: f15a53236adb1c24f9428693544b69ab, type: 3}
       propertyPath: m_SizeDelta.x
@@ -5069,6 +5080,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2090161417646747676, guid: 1592614a72671d14ab5a6e0202ba9121, type: 3}
+      propertyPath: timerManager
+      value: 
+      objectReference: {fileID: 1171752483}
     - target: {fileID: 2090161417646747676, guid: 1592614a72671d14ab5a6e0202ba9121, type: 3}
       propertyPath: m_gameClearUI
       value: 
@@ -7948,7 +7963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2632302797654582119, guid: dbea37270968da24896484bf5dd5e51a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3022777142486163137, guid: dbea37270968da24896484bf5dd5e51a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
