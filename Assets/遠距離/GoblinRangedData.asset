@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GoblinRangedData
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
   enemyName: Enemy
-  maxHP: 30
+  maxHP: 50
   moveSpeed: 2
   detectDistance: 10
   attackDistance: 7
