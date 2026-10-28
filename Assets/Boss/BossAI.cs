@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class BossAI : MonoBehaviour
@@ -18,6 +17,14 @@ public class BossAI : MonoBehaviour
     [Header("遠距離攻撃")]
     [SerializeField] private Transform m_shootPoint;
     [SerializeField] private GameObject m_projectilePrefab;
+
+    [Header("複数方向攻撃")]
+    // 一度に撃つ弾の数（3なら三方向）
+    [SerializeField] private int m_shotCount = 3;
+
+    // Player方向を中心に、左右へ開く最大の角度（度）
+    // 3発なら「-この角度 / 0 / +この角度」の方向に撃つ
+    [SerializeField] private float m_spreadAngle = 30f;
 
     [Header("接触ダメージ")]
     [SerializeField] private int m_contactDamage = 10;
@@ -247,7 +254,7 @@ public class BossAI : MonoBehaviour
         ChangeState(BossAIState.Recovery);
     }
 
-    // Projectile発射
+    // Projectile発射（複数方向）
     private void ShootProjectile()
     {
         if (m_shootPoint == null)
@@ -266,31 +273,59 @@ public class BossAI : MonoBehaviour
             return;
         }
 
-        // Player方向
-        Vector2 direction = GetPlayerDirection();
+        // Player方向（中心になる方向）
+        Vector2 baseDirection = GetPlayerDirection();
 
-        // 弾を生成
-        GameObject projectile = Instantiate(
-            m_projectilePrefab,
-            m_shootPoint.position,
-            Quaternion.identity
-        );
+        // 弾の数は最低1発
+        int shotCount = Mathf.Max(1, m_shotCount);
 
-        // EnemyProjectile取得
-        EnemyProjectile enemyProjectile =
-            projectile.GetComponent<EnemyProjectile>();
-
-        if (enemyProjectile != null)
+        for (int i = 0; i < shotCount; i++)
         {
-            enemyProjectile.Initialize(
-                direction,
-                m_data.projectileSpeed,
-                m_data.projectileLifeTime,
-                m_data.rangedAttackDamage
+            // 弾ごとの角度を決める
+            // 1発なら 0度、3発なら -spread / 0 / +spread
+            float angle = 0f;
+
+            if (shotCount > 1)
+            {
+                float t = (float)i / (shotCount - 1);
+
+                angle = Mathf.Lerp(
+                    -m_spreadAngle,
+                    m_spreadAngle,
+                    t
+                );
+            }
+
+            // Player方向を、angle度だけ回転させる
+            Vector2 direction =
+                Quaternion.Euler(0f, 0f, angle) *
+                (Vector3)baseDirection;
+
+            // 弾を生成
+            GameObject projectile = Instantiate(
+                m_projectilePrefab,
+                m_shootPoint.position,
+                Quaternion.identity
             );
+
+            // EnemyProjectile取得
+            EnemyProjectile enemyProjectile =
+                projectile.GetComponent<EnemyProjectile>();
+
+            if (enemyProjectile != null)
+            {
+                enemyProjectile.Initialize(
+                    direction,
+                    m_data.projectileSpeed,
+                    m_data.projectileLifeTime,
+                    m_data.rangedAttackDamage
+                );
+            }
         }
 
-        Debug.Log("Bossが遠距離攻撃を発射！");
+        Debug.Log(
+            "Bossが遠距離攻撃を発射！（" + shotCount + "方向）"
+        );
     }
 
     // Recovery

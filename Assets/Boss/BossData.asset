@@ -13,13 +13,18 @@ MonoBehaviour:
   m_Name: BossData
   m_EditorClassIdentifier: Assembly-CSharp::BossData
   bossName: Boss
-  MaxHP: 500
-  moveSpeed: 2
+  MaxHP: 200
+  moveSpeed: 3
   detectDistance: 10
   attackDistance: 2
   attackDamage: 20
   attackInterval: 2
   attackDuration: 0.5
+  rangedAttackDistance: 6
+  rangedAttackDamage: 20
+  rangedAttackInterval: 2
+  projectileSpeed: 8
+  projectileLifeTime: 5
   recoveryTime: 1
   phase2HP: 250
   phase3HP: 100

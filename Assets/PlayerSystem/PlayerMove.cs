@@ -138,11 +138,26 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
-        if (touchingTop && rb.linearVelocity.y <= 0.01f)
+        // 動く足場に乗っているときは、足場の速度を引いて「足場から見た速度」で判定する
+        // （上昇する足場に乗ると、Playerも上向きの速度になるため）
+        float groundVelocityY = 0f;
+
+        MovingPlatform platform =
+            collision.gameObject.GetComponent<MovingPlatform>();
+
+        if (platform != null)
+        {
+            groundVelocityY = platform.CurrentVelocity.y;
+        }
+
+        float relativeVelocityY =
+            rb.linearVelocity.y - groundVelocityY;
+
+        if (touchingTop && relativeVelocityY <= 0.01f)
         {
             groundObjects.Add(collision.gameObject);
         }
-        else if (rb.linearVelocity.y > 0.01f)
+        else if (relativeVelocityY > 0.01f)
         {
             groundObjects.Remove(collision.gameObject);
         }
